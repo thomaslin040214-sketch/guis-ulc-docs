@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OfficialDoc · 官方文件生成门户</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='none' stroke='%239C2126' stroke-width='7'/%3E%3Cpath d='M50 18l7 15 16 2-11.5 11 3 16-14.5-7.6-14.5 7.6 3-16-11.5-11 16-2z' fill='%239C2126'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Ma+Shan+Zheng&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<style id="css-app">
+:root{
+  --accent:#9C2126; --accent-deep:#7c1a1f; --accent-soft:#f7ecec;
+  --ink:#1c1f24; --ink-2:#454b54; --muted:#8a919c;
+  --line:#e4e7eb; --line-strong:#c9ced6;
+  --bg:#f2f3f5; --panel:#ffffff;
+  --radius:12px;
+  --shadow-sm:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.08);
+  --shadow-md:0 6px 20px rgba(16,24,40,.10);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro SC","PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);overflow:hidden}
+button{font-family:inherit}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:#cfd4db;border-radius:99px;border:2px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background:#b6bcc5;background-clip:content-box}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ---------- 顶栏 ---------- */
+.topbar{height:58px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:0 16px;position:relative;z-index:20}
+.brand{display:flex;align-items:center;gap:10px;flex:none}
+.brand-mark{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--accent),#6d1418);color:#fff;display:grid;place-items:center;font-weight:700;font-size:15px;box-shadow:var(--shadow-sm)}
+.brand-name{font-weight:700;font-size:14.5px;letter-spacing:.2px;white-space:nowrap}
+.brand-sub{font-weight:500;color:var(--ink-2);font-size:12px;margin-left:2px}
+.brand-dept{font-size:10.5px;color:var(--muted);margin-top:1px;letter-spacing:.4px;white-space:nowrap}
+.ver{font-size:10px;border:1px solid var(--line-strong);border-radius:99px;padding:1.5px 8px;color:var(--muted);white-space:nowrap;flex:none}
+.typebar{flex:1;display:flex;gap:6px;overflow-x:auto;min-width:0;scrollbar-width:none;padding:2px}
+.typebar::-webkit-scrollbar{display:none}
+.pill{flex:none;border:1px solid var(--line-strong);background:#fff;border-radius:99px;padding:5px 14px;font-size:12.5px;cursor:pointer;color:var(--ink-2);transition:all .18s ease;white-space:nowrap}
+.pill:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px);box-shadow:var(--shadow-sm)}
+.pill.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.pill.active:hover{background:var(--accent-deep);color:#fff}
+.actions{display:flex;gap:7px;align-items:center;flex:none}
+.btn{height:31px;border-radius:99px;border:1px solid var(--line-strong);background:#fff;padding:0 12px;font-size:12px;cursor:pointer;color:var(--ink-2);transition:all .18s ease;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.btn:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px);box-shadow:var(--shadow-sm)}
+.btn:active{transform:translateY(0)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600;padding:0 16px}
+.btn.primary:hover{background:var(--accent-deep);color:#fff}
+
+/* ---------- 主区 ---------- */
+.main{display:grid;grid-template-columns:472px 1fr;height:calc(100% - 58px)}
+.editor{overflow-y:auto;padding:16px 16px 70px;border-right:1px solid var(--line);background:var(--bg)}
+.preview-wrap{overflow:auto;position:relative;padding:26px 0 70px;background:radial-gradient(circle at 1px 1px,#dcdfe5 1px,transparent 0) 0 0/22px 22px,var(--bg)}
+.pv-toolbar{position:absolute;top:14px;right:16px;z-index:10;display:flex;gap:10px;align-items:center;background:rgba(255,255,255,.93);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:99px;padding:5px 8px 5px 10px;box-shadow:var(--shadow-md)}
+.seg{display:inline-flex;background:#f1f2f4;border-radius:99px;padding:2px}
+.seg button{border:0;background:transparent;padding:4px 12px;border-radius:99px;font-size:12px;cursor:pointer;color:var(--ink-2);transition:all .15s}
+.seg button.on{background:#fff;box-shadow:var(--shadow-sm);color:var(--accent);font-weight:600}
+.zoom{display:flex;align-items:center;gap:2px}
+.zoom button{border:0;background:transparent;width:24px;height:24px;border-radius:7px;cursor:pointer;color:var(--ink-2);font-size:14px;line-height:1;transition:.15s}
+.zoom button:hover{background:var(--accent-soft);color:var(--accent)}
+#zoomLabel{font-size:11px;color:var(--muted);min-width:38px;text-align:center;font-variant-numeric:tabular-nums}
+.zoom .fit-btn{width:auto;padding:0 8px;font-size:11.5px}
+.paper-sizer{position:relative;margin:0 auto;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0}to{opacity:1}}
+
+/* ---------- 编辑器卡片 ---------- */
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);margin-bottom:14px;box-shadow:var(--shadow-sm);overflow:hidden;animation:fadeUp .25s ease}
+.card-h{display:flex;align-items:baseline;gap:9px;padding:11px 14px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#fff,#fbfbfc);cursor:default}
+.card-t{font-size:13px;font-weight:700;letter-spacing:.5px;display:flex;align-items:center;gap:7px}
+.card-t::before{content:"";width:3px;height:12px;background:var(--accent);border-radius:2px}
+.card-hint{font-size:11px;color:var(--muted);margin-left:auto;text-align:right}
+.card-b{padding:13px 14px;display:flex;flex-direction:column;gap:11px}
+details.card>summary.card-h{list-style:none;cursor:pointer}
+details.card>summary.card-h::-webkit-details-marker{display:none}
+details.card>summary.card-h::after{content:"▸";color:var(--muted);font-size:11px;margin-left:8px;transition:transform .2s}
+details.card[open]>summary.card-h::after{transform:rotate(90deg)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.fld{display:flex;flex-direction:column;gap:4px;min-width:0}
+.fld-l{font-size:11.5px;color:var(--ink-2);font-weight:600;display:flex;align-items:center}
+.en-h{font-size:9.5px;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 3px;margin-left:5px;font-weight:400;line-height:1.4}
+input[type=text],input[type=date],input[type=time],textarea{width:100%;border:1px solid var(--line-strong);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;background:#fff;color:var(--ink);transition:border-color .15s,box-shadow .15s}
+input:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(156,33,38,.12)}
+textarea{resize:vertical;min-height:72px;line-height:1.65}
+.en-in{margin-top:3px;font-size:12px;background:#fcfcfd}
+.no-row{display:flex;gap:8px}
+.no-row input{flex:1}
+.mini-btn{border:1px solid var(--line-strong);background:#fff;border-radius:8px;padding:6px 11px;font-size:11.5px;cursor:pointer;color:var(--ink-2);transition:all .15s;white-space:nowrap}
+.mini-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.mini-btn.danger:hover{border-color:#b42318;color:#b42318;background:#fef3f2}
+.sub-h{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:1.5px;display:flex;align-items:center;gap:8px;margin:2px 0 -2px}
+.sub-h::after{content:"";flex:1;height:1px;background:var(--line)}
+.rows{display:flex;flex-direction:column;gap:9px}
+.row{display:grid;gap:9px;align-items:end;position:relative;padding:10px 36px 10px 11px;border:1px solid var(--line);border-radius:10px;background:#fcfcfd;animation:fadeUp .2s ease}
+.row .del{position:absolute;top:7px;right:7px;width:22px;height:22px;border-radius:50%;border:1px solid var(--line-strong);background:#fff;color:var(--muted);cursor:pointer;line-height:1;font-size:13px;display:grid;place-items:center;transition:all .15s;padding:0}
+.row .del:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.row.r2{grid-template-columns:1fr 1fr}
+.row.r3{grid-template-columns:1.2fr 1.5fr .7fr}
+.row.r4{grid-template-columns:.55fr 1.15fr 1fr 1fr}
+.row.r1{grid-template-columns:1fr}
+.add-btn{width:100%;border:1px dashed var(--line-strong);background:#fff;border-radius:10px;padding:8px;color:var(--ink-2);cursor:pointer;font-size:12.5px;transition:all .15s}
+.add-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.pen-pills{display:flex;flex-wrap:wrap;gap:6px}
+.pen-pill{border:1px solid var(--line-strong);background:#fff;border-radius:99px;padding:5px 12px;font-size:12px;cursor:pointer;color:var(--ink-2);transition:all .15s}
+.pen-pill:hover{border-color:var(--accent);color:var(--accent)}
+.pen-pill.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:500}
+.editor-tip{font-size:11px;color:var(--muted);line-height:1.8;text-align:center;padding:6px 20px 0}
+
+/* ---------- 草稿箱弹窗 ---------- */
+.modal-mask{position:fixed;inset:0;background:rgba(15,18,24,.45);display:grid;place-items:center;z-index:90;padding:20px}
+.modal-mask[hidden]{display:none}
+.modal{background:#fff;border-radius:14px;width:540px;max-width:100%;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.25);animation:pop .25s ease}
+@keyframes pop{from{opacity:0;transform:scale(.96) translateY(8px)}}
+.modal-h{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);font-weight:700;font-size:14px}
+.modal-h .x{border:0;background:transparent;font-size:16px;cursor:pointer;color:var(--muted);padding:2px 6px;border-radius:6px}
+.modal-h .x:hover{background:#f2f3f5;color:var(--ink)}
+.modal-b{padding:12px 14px;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
+.draft-item{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;transition:border-color .15s}
+.draft-item:hover{border-color:var(--line-strong)}
+.di-name{font-size:13px;font-weight:600}
+.di-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.di-ops{display:flex;gap:6px;flex:none}
+.empty{color:var(--muted);font-size:13px;text-align:center;padding:32px 0}
+
+/* ---------- Toast ---------- */
+.toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(16px);background:#1c1f24;color:#fff;font-size:13px;padding:9px 18px;border-radius:99px;opacity:0;pointer-events:none;transition:all .25s ease;z-index:99;box-shadow:0 8px 24px rgba(0,0,0,.25);max-width:80vw}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+<style id="css-paper">
+/* ================= 纸张 / 文件本体（打印与导出复用） ================= */
+.paper{width:210mm;min-height:297mm;background:#fff;box-shadow:0 10px 34px rgba(16,24,40,.16);padding:17mm 16mm 15mm;font-family:"Noto Serif SC","Source Han Serif SC","Songti SC","SimSun","Times New Roman",serif;color:#14171c;position:absolute;top:0;left:0;line-height:1.9}
+.doc-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;padding-bottom:12px;border-bottom:3px double #9C2126}
+.lh{display:flex;gap:14px;align-items:center;min-width:0}
+.emblem{width:56px;height:56px;flex:none}
+.org-name{font-size:21px;font-weight:700;letter-spacing:1.5px;line-height:1.3}
+.org-name-en{font-size:10.5px;letter-spacing:2.5px;color:#5a6068;margin-top:3px;text-transform:uppercase;font-family:Georgia,"Times New Roman",serif}
+.org-dept{font-size:10.5px;letter-spacing:2.5px;color:#9C2126;margin-top:5px;font-weight:600}
+.org-dept .sep{margin:0 7px;color:#c9a0a2}
+.doc-no-box{text-align:right;flex:none}
+.doc-no-box .k{font-size:9.5px;letter-spacing:2.5px;color:#7a8088;font-family:Georgia,serif}
+.doc-no-box .v{font-size:15.5px;font-weight:700;font-family:Georgia,"Times New Roman",serif;margin-top:3px;letter-spacing:.5px;color:#1c1f24}
+.meta-grid{width:100%;border-collapse:collapse;margin-top:13px;font-size:11.5px;line-height:1.65}
+.meta-grid td{border:1px solid #b9bec7;padding:5px 9px;vertical-align:top}
+.meta-grid td.k{background:#f6f4f2;font-weight:700;white-space:nowrap;width:1%;color:#333;font-size:10.5px;letter-spacing:1px;font-family:"Noto Serif SC",serif}
+.mono{font-family:Georgia,"Times New Roman",serif;font-size:12.5px;letter-spacing:.4px}
+.doc-title{font-size:25px;font-weight:700;text-align:center;margin:24px 0 2px;letter-spacing:.3em;margin-right:-.3em;font-family:"Noto Serif SC","Source Han Serif SC","SimSun",serif}
+.doc-title::after{content:"";display:block;width:60px;height:2px;background:#9C2126;margin:11px auto 0}
+.doc-title-en{text-align:center;font-size:10.5px;letter-spacing:.3em;color:#6a7078;font-weight:600;margin-top:9px;font-family:Georgia,"Times New Roman",serif;text-transform:uppercase}
+.title-zh-sub{text-align:center;font-size:11px;color:#7a8088;margin-top:9px;letter-spacing:.4em;margin-right:-.4em;font-family:"Noto Serif SC",serif}
+.doc-sec{margin-top:15px}
+.sec-h{font-size:13.5px;font-weight:700;margin:0 0 5px;font-family:"Noto Serif SC","Source Han Serif SC","SimSun",serif;letter-spacing:.5px}
+.sec-h .en{font-weight:600;color:#8a919c;font-size:10.5px;letter-spacing:.1em;margin-left:9px;font-family:Georgia,"Times New Roman",serif}
+.doc-p{font-size:12.5px;line-height:2.05;text-align:justify;margin:0 0 5px;text-indent:2em}
+.doc-p.en-p{font-size:11px;color:#4a5058;line-height:1.85;margin-top:2px}
+.strip{display:flex;flex-wrap:wrap;border:1px solid #d6d9de;background:#faf9f7;border-radius:5px;padding:7px 4px;font-size:11.5px;margin:8px 0}
+.strip .item{padding:0 15px;border-right:1px solid #dcdfe4;white-space:nowrap}
+.strip .item:last-child{border-right:0}
+.strip b{font-weight:700;color:#3a3f46;margin-right:7px}
+.doc-table{width:100%;border-collapse:collapse;font-size:11.5px;margin:8px 0}
+.doc-table th{background:#f6f4f2;border:1px solid #b9bec7;padding:5px 8px;font-size:10.5px;letter-spacing:1.5px;font-weight:700;color:#333}
+.doc-table td{border:1px solid #c6cad1;padding:6px 9px;text-align:center;line-height:1.55}
+.doc-table td.l{text-align:left}
+.sub{font-size:10px;color:#7c828a;margin-top:1px;line-height:1.45;font-family:Georgia,"Times New Roman",serif}
+.reg-list{counter-reset:reg;list-style:none;margin:5px 0;padding:0}
+.reg-list li{counter-increment:reg;position:relative;padding-left:38px;font-size:12.5px;line-height:2;text-align:justify}
+.reg-list li b{font-weight:700;color:#1c1f24;margin-right:4px}
+.lang-zh .reg-list li::before,.lang-bi .reg-list li::before{content:"（" counter(reg,cjk-ideographic) "）";position:absolute;left:0;top:0;color:#5a6068}
+.lang-en .reg-list li::before{content:counter(reg) ".";position:absolute;left:2px;top:0;color:#5a6068;font-family:Georgia,serif}
+.pen-chips{margin:7px 0}
+.pen-chip{display:inline-block;border:1px solid #9C2126;color:#9C2126;border-radius:99px;padding:2px 12px;font-size:11px;margin:2px 5px 2px 0;letter-spacing:.5px;background:#fdf7f7}
+.att-list{list-style:none;padding:0;margin:5px 0}
+.att-list li{font-size:12.5px;line-height:2.05;position:relative;padding-left:78px}
+.att-no{position:absolute;left:0;top:0;color:#5a6068;font-size:11px;letter-spacing:1px}
+.ph{color:#b9bec7}
+.ph2{color:#c3c8cf;font-size:14px;font-family:"Noto Serif SC",serif}
+.end-mark{text-align:center;color:#8a919c;font-size:11px;margin:20px 0 2px;letter-spacing:3px;margin-right:-3px}
+.sig-wrap{margin-top:8px}
+.sig-org{font-size:12px;font-weight:700;color:#2a2f36;margin:12px 0 6px;letter-spacing:2px}
+.signatures{display:grid;grid-template-columns:1fr 1fr;gap:24px 44px;margin-top:8px}
+.sig-block .line{height:42px;border-bottom:1px solid #2a2f36;position:relative}
+.sig-block .who{position:absolute;left:10px;bottom:2px;font-family:"Ma Shan Zheng","Zhi Mang Xing","Kaiti SC","STKaiti","KaiTi",cursive;font-size:24px;color:#17356b;line-height:1;white-space:nowrap}
+.sig-block .who.en{font-family:"Caveat","Segoe Script","Snell Roundhand",cursive;font-size:26px}
+.sig-block .who-en{display:block;font-family:"Caveat","Segoe Script",cursive;font-size:14px;color:#33415e;margin-top:2px}
+.sig-block .t{margin-top:5px;font-size:11px;color:#454b54;letter-spacing:1.5px}
+.sig-date{text-align:right;font-size:11.5px;color:#454b54;margin-top:20px;letter-spacing:1px}
+/* ================= 打印 ================= */
+@media print{
+  body{overflow:visible;background:#fff}
+  .topbar,.editor,.pv-toolbar,.modal-mask,.toast{display:none!important}
+  .main{display:block;height:auto}
+  .preview-wrap{overflow:visible;padding:0;display:block;background:#fff}
+  .paper-sizer{width:auto!important;height:auto!important;margin:0!important;animation:none}
+  .paper{position:static!important;transform:none!important;width:auto!important;min-height:0!important;box-shadow:none!important;margin:0!important;padding:0!important}
+  .doc-sec,.sig-block,.strip,.doc-table tr,.reg-list li{break-inside:avoid}
+  .sec-h{break-after:avoid}
+  @page{size:A4;margin:16mm 15mm}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark" aria-hidden="true">官</div>
+    <div>
+      <div class="brand-name">OfficialDoc<span class="brand-sub">官方文件生成门户</span></div>
+      <div class="brand-dept">GUIS-ULC 学生处 · 正式文书</div>
+    </div>
+  </div>
+  <span class="ver">v0.1 草拟版</span>
+  <nav class="typebar" id="typebar" aria-label="文件类型"></nav>
+  <div class="actions">
+    <button class="btn" id="btnExample" title="载入一份示例文件">示例</button>
+    <button class="btn" id="btnNew" title="新建空白文件">新建</button>
+    <button class="btn" id="btnSave" title="保存到草稿箱（Ctrl/Cmd + S）">保存草稿</button>
+    <button class="btn" id="btnDrafts">草稿箱</button>
+    <button class="btn" id="btnExportJson" title="导出为 JSON 备份">导出 JSON</button>
+    <button class="btn" id="btnImportJson" title="从 JSON 备份恢复">导入</button>
+    <button class="btn" id="btnExportHtml" title="导出可打印的独立 HTML 文档">导出文档</button>
+    <button class="btn primary" id="btnPrint" title="调用浏览器打印 / 另存为 PDF">打印 / 导出 PDF</button>
+    <input type="file" id="fileInput" accept=".json,application/json" hidden>
+  </div>
+</header>
+
+<main class="main">
+  <aside class="editor" id="editor" aria-label="文件内容编辑区"></aside>
+  <section class="preview-wrap" id="pvWrap" aria-label="文件预览区">
+    <div class="pv-toolbar">
+      <div class="seg" id="langSeg" role="group" aria-label="文件语言">
+        <button data-act="lang" data-v="zh" class="on">中文</button>
+        <button data-act="lang" data-v="en">EN</button>
+        <button data-act="lang" data-v="bi">双语</button>
+      </div>
+      <div class="zoom" role="group" aria-label="预览缩放">
+        <button data-act="zoom-out" title="缩小">−</button>
+        <span id="zoomLabel">100%</span>
+        <button data-act="zoom-in" title="放大">＋</button>
+        <button class="fit-btn" data-act="zoom-fit" title="适应宽度">适应</button>
+      </div>
+    </div>
+    <div class="paper-sizer" id="pvSizer"><article class="paper lang-zh" id="paper"></article></div>
+  </section>
+</main>
+
+<div class="modal-mask" id="draftMask" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="draftTitle">
+    <div class="modal-h"><span id="draftTitle">草稿箱</span><button class="x" data-act="close-drafts" title="关闭">×</button></div>
+    <div class="modal-b" id="draftList"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+/* ================= 基础工具 ================= */
+var $=function(s,r){return (r||document).querySelector(s);};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));};
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function gp(path){var ks=path.split('.'),o=state;for(var i=0;i<ks.length;i++){if(o==null)return '';o=o[ks[i]];}return o==null?'':o;}
+function sp(path,v){var ks=path.split('.'),o=state;for(var i=0;i<ks.length-1;i++){o=o[ks[i]];}o[ks[ks.length-1]]=v;}
+function arr(k){return state[k]||[];}
+var toastTimer=null;
+function toast(msg){var t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.classList.remove('show');},1900);}
+function download(blob,name){var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},800);}
+function nowCST(){var d=new Date(Date.now()+(new Date().getTimezoneOffset()*60000)+8*3600000);return {d:d.toISOString().slice(0,10),t:d.toISOString().slice(11,16)};}
+function fmtDate(v){
+  if(!v)return '<span class="ph">————</span>';
+  var p=String(v).split('-'),y=p[0],m=p[1],d=p[2];
+  if(state.lang==='en'){var MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return d+' '+MN[(+m||1)-1]+' '+y;}
+  return y+'年'+m+'月'+d+'日';
+}
+
+/* ================= 常量 ================= */
+var TYPES=[
+  {id:'decision',zh:'处理决定书'},
+  {id:'summons',zh:'约谈通知'},
+  {id:'penalty',zh:'处分通知'},
+  {id:'bulletin',zh:'公告通报'},
+  {id:'results',zh:'结果公示'}
+];
+var TYPE_MAP={};TYPES.forEach(function(t){TYPE_MAP[t.id]=t;});
+var CN=['一','二','三','四','五','六','七','八','九','十'];
+var RM=['I','II','III','IV','V','VI','VII','VIII','IX','X'];
+var PENALTIES=[
+  {v:'remind',zh:'口头提醒',en:'Verbal Reminder'},
+  {v:'warning',zh:'书面警告',en:'Written Warning'},
+  {v:'criticism',zh:'通报批评',en:'Notice of Criticism'},
+  {v:'demerit',zh:'记过',en:'Demerit'},
+  {v:'probation',zh:'留校察看',en:'Disciplinary Probation'},
+  {v:'honor',zh:'取消评优资格',en:'Disqualification from Honors'},
+  {v:'parent',zh:'约见家长',en:'Parent Conference Required'}
+];
+var TITLES={
+  decision:{zh:'处理决定书',en:'STUDENT AFFAIRS DECISION',from:'GUIS-ULC 学生处',fromEn:'The Student Office',to:'相关学生及家长',toEn:'The Student and Parents',
+    appeal:'如对本决定有异议，学生本人或家长可在公布后 5 个工作日内，向学生申诉委员会提交书面申诉，逾期不予受理。',
+    appealEn:'Should the student or the parents object to this decision, a written appeal may be submitted to the Student Appeals Committee within 5 working days of publication, failing which the right to appeal lapses.',
+    effective:'本决定自签发之日起生效。',
+    effectiveEn:'This decision takes effect from the date of issue.'},
+  summons:{zh:'约谈通知',en:'NOTICE OF MEETING',from:'GUIS-ULC 学生处',fromEn:'The Student Office',to:'被约谈人',toEn:'The Person to be Met',
+    appeal:'被约谈人应按时到校；如需变更时间，请至少提前 1 个工作日与学生处联系。',
+    appealEn:'The person to be met should arrive on time; to reschedule, please contact the Student Office at least 1 working day in advance.',
+    effective:'本通知自签发之日起生效。',
+    effectiveEn:'This notice takes effect from the date of issue.'},
+  penalty:{zh:'处分通知',en:'DISCIPLINARY NOTICE',from:'GUIS-ULC 学生处',fromEn:'The Student Office',to:'相关学生及家长',toEn:'The Student and Parents',
+    appeal:'如对处分决定有异议，学生本人或家长可在公布后 5 个工作日内向学生申诉委员会提出书面申诉。',
+    appealEn:'Should the student or the parents object to this disciplinary action, a written appeal may be lodged with the Student Appeals Committee within 5 working days of publication.',
+    effective:'本处分自签发之日起执行。',
+    effectiveEn:'This disciplinary action takes effect from the date of issue.'},
+  bulletin:{zh:'公　告',en:'BULLETIN',from:'GUIS-ULC 学生处',fromEn:'The Student Office',to:'全体师生',toEn:'All Staff and Students',
+    appeal:'本公告自发布之日起施行，请相关师生知悉并遵照执行。',
+    appealEn:'This bulletin takes effect upon publication and should be noted and followed by all staff and students concerned.',
+    effective:'本公告自发布之日起施行。',
+    effectiveEn:'This bulletin takes effect upon publication.'},
+  results:{zh:'结果公示',en:'PUBLIC NOTICE OF RESULTS',from:'GUIS-ULC 学生处',fromEn:'The Student Office',to:'全体师生',toEn:'All Staff and Students',
+    appeal:'如对公示内容有异议，请于公示期届满前向学生处提出，逾期视为无异议。',
+    appealEn:'Any objection to the published content should be raised with the Student Office before the publicity period ends; silence will be taken as no objection.',
+    effective:'本公示自发布之日起生效。',
+    effectiveEn:'This notice takes effect upon publication.'}
+};
+var KEY_DRAFTS='officialdoc.drafts.v1';
+var KEY_CUR='officialdoc.current.v2';
+var KEY_SEQ='officialdoc.seq.v1';
+var storedSeq=0;try{storedSeq=parseInt(localStorage.getItem(KEY_SEQ)||'0',10)||0;}catch(e){}
+
+/* ================= 状态 ================= */
+function blank(){
+  var t=nowCST();
+  return {type:'decision',lang:'zh',
+    org:{name:'GUIS-ULC 学生处',nameEn:'GUIS-ULC Student Office',dept:'学生处',prefix:'ULC-SA',abbr:'GUIS'},
+    meta:{no:'',date:t.d,time:t.t,cls:'public',from:'',to:''},
+    doc:{event:'',eventEn:'',session:'',sessionEn:'',title:'',titleEn:'',
+      facts:'',factsEn:'',incTime:'',incSession:'',incPlace:'',
+      decision:'',decisionEn:'',
+      summoned:'',summonedEn:'',summonedRole:'',summonedNo:'',reason:'',reasonEn:'',appearWhen:'',appearWhere:'',consequence:'',consequenceEn:'',
+      infringement:'',infringementEn:'',penaltyTypes:[],penaltyDetail:'',penaltyDetailEn:'',execDeadline:'',
+      body:'',bodyEn:'',
+      resultCategory:'',resultCategoryEn:'',
+      effective:'',effectiveEn:'',appeal:'',appealEn:''},
+    parties:[{name:'',nameEn:'',role:'',no:''}],
+    regs:[{code:'',desc:'',descEn:''}],
+    officials:[{name:'',nameEn:'',title:'学生处主任'},{name:'',nameEn:'',title:'年级组长'},{name:'',nameEn:'',title:'学生处干事'}],
+    attachments:[''],
+    resultRows:[{rank:'1',name:'',nameEn:'',result:'',remark:''},{rank:'2',name:'',nameEn:'',result:'',remark:''},{rank:'3',name:'',nameEn:'',result:'',remark:''}]};
+}
+function example(){
+  var s=blank();
+  s.type='decision';
+  s.meta.no='ULC-SA-2026-012';s.meta.date='2026-10-20';s.meta.time='16:30';s.meta.cls='public';
+  s.meta.from='GUIS-ULC 学生处';s.meta.fromEn='The Student Office';
+  s.meta.to='G10-A 班李思远同学及家长';s.meta.toEn='Li Siyuan (G10-A) and Parents';
+  s.doc.event='ULC 2026 学年秋季学期';s.doc.eventEn='ULC 2026 Autumn Semester';
+  s.doc.session='日常管理 · 课堂纪律';s.doc.sessionEn='Daily Management · Classroom Discipline';
+  s.doc.title='关于 G10-A 班李思远同学课堂使用电子设备的处理决定';s.doc.titleEn='DECISION ON CLASSROOM USE OF AN ELECTRONIC DEVICE BY LI SIYUAN (G10-A)';
+  s.doc.facts='2026 年 10 月 15 日上午第 3 节数学课，G10-A 班李思远同学在课堂上使用手机，任课教师当场提醒后，该生再次使用。任课教师随即将情况报告学生处。\n学生处核实了课堂记录与任课教师的情况说明，并约谈了该生，其对上述事实无异议。';
+  s.doc.factsEn='During Period 3 Mathematics on the morning of 15 October 2026, Li Siyuan of Class G10-A used a mobile phone in class, and used it again after being reminded by the teacher. The teacher reported the incident to the Student Office.\nThe Student Office verified the class record and the teacher’s report, and interviewed the student, who raised no objection to the above facts.';
+  s.doc.incTime='10:15';s.doc.incSession='第 3 节';s.doc.incPlace='B305 教室';
+  s.doc.decision='一、给予李思远同学书面警告一次，计入本学期操行评定；\n二、请班主任于一周内与该生及家长进行一次面谈，并在学生处备案；\n三、若本学期内再次发生同类违纪行为，将按《学生行为规范》升级处理。';
+  s.doc.decisionEn='1. A written warning is issued to Li Siyuan and recorded in the conduct assessment for this semester;\n2. The homeroom teacher is to hold a meeting with the student and parents within one week and file a record with the Student Office;\n3. Any repeat of similar misconduct this semester will be dealt with more severely under the Student Code of Conduct.';
+  s.doc.effective='本决定自签发之日起生效。';
+  s.doc.effectiveEn='This decision takes effect from the date of issue.';
+  s.doc.appeal='如对本决定有异议，学生本人或家长可在公布后 5 个工作日内，向学生申诉委员会提交书面申诉，逾期不予受理。';
+  s.doc.appealEn='Should the student or the parents object to this decision, a written appeal may be submitted to the Student Appeals Committee within 5 working days of publication, failing which the right to appeal lapses.';
+  s.parties=[{name:'李思远',nameEn:'LI Siyuan',role:'G10-A 班',no:''}];
+  s.regs=[{code:'《GUIS-ULC 学生行为规范（2026 修订）》第 8.2 条',desc:'课堂上未经教师许可，学生不得使用手机及其他电子设备；经提醒仍不改正的，按违纪处理。',descEn:'Students may not use mobile phones or other electronic devices in class without the teacher’s permission; failure to correct the behaviour after a reminder is dealt with as misconduct.'}];
+  s.officials=[
+    {name:'陈明',nameEn:'CHEN Ming',title:'学生处主任'},
+    {name:'Emily Carter',nameEn:'Emily Carter',title:'年级组长'},
+    {name:'周敏',nameEn:'ZHOU Min',title:'学生处干事'}];
+  return s;
+}
+function applyTypeDefaults(s){
+  var T=TITLES[s.type]||TITLES.decision,d=s.doc;
+  if(!s.meta.from)s.meta.from=T.from;
+  if(!s.meta.to)s.meta.to=T.to;
+  if(!d.title)d.title=T.zh;
+  if(!d.appeal)d.appeal=T.appeal;
+  if(!d.appealEn)d.appealEn=T.appealEn||'';
+  if(!d.effective)d.effective=T.effective;
+  if(!d.effectiveEn)d.effectiveEn=T.effectiveEn||'';
+}
+function autoNo(){
+  var m=/(\d+)\s*$/.exec(state.meta.no||'');
+  var seq=m?parseInt(m[1],10)+1:(storedSeq+1);
+  storedSeq=seq;try{localStorage.setItem(KEY_SEQ,String(seq));}catch(e){}
+  var y=(state.meta.date||'').slice(0,4)||String(new Date().getFullYear());
+  state.meta.no=state.org.prefix+'-'+y+'-('+'000'+seq+')'.slice(-4);
+}
+
+/* ================= 表单构建 ================= */
+function fInp(label,bind,ph,withEn){
+  var en=withEn!==false&&state.lang!=='zh';
+  return '<label class="fld"><span class="fld-l">'+esc(label)+(en?' <span class="en-h">EN</span>':'')+'</span>'
+    +'<input type="text" data-bind="'+bind+'" placeholder="'+esc(ph||'')+'" value="'+esc(gp(bind))+'">'
+    +(en?'<input type="text" class="en-in" data-bind="'+bind+'En" placeholder="English" value="'+esc(gp(bind+'En'))+'">':'')
+    +'</label>';
+}
+function fArea(label,bind,rows,ph,withEn){
+  var en=withEn!==false&&state.lang!=='zh';
+  return '<label class="fld"><span class="fld-l">'+esc(label)+(en?' <span class="en-h">EN</span>':'')+'</span>'
+    +'<textarea rows="'+rows+'" data-bind="'+bind+'" placeholder="'+esc(ph||'')+'">'+esc(gp(bind))+'</textarea>'
+    +(en?'<textarea rows="2" class="en-in" data-bind="'+bind+'En" placeholder="English">'+esc(gp(bind+'En'))+'</textarea>':'')
+    +'</label>';
+}
+function fGrid(inner){return '<div class="grid2">'+inner+'</div>';}
+function subH(t){return '<div class="sub-h">'+esc(t)+'</div>';}
+
+function rowParty(it,i){
+  var en=state.lang!=='zh';
+  return '<div class="row r2">'
+    +'<div class="fld"><span class="fld-l">姓名</span><input type="text" data-bind="parties.'+i+'.name" value="'+esc(it.name)+'" placeholder="学生姓名">'
+    +(en?'<input type="text" class="en-in" data-bind="parties.'+i+'.nameEn" value="'+esc(it.nameEn)+'" placeholder="English">':'')+'</div>'
+    +'<div class="fld"><span class="fld-l">班级 / 年级</span><input type="text" data-bind="parties.'+i+'.role" value="'+esc(it.role)+'" placeholder="如：G10-A 班"></div>'
+    +'<button class="del" data-act="del" data-list="parties" data-i="'+i+'" title="删除本行">×</button></div>';
+}
+function rowReg(it,i){
+  var en=state.lang!=='zh';
+  return '<div class="row r2">'
+    +'<div class="fld"><span class="fld-l">条款编号</span><input type="text" data-bind="regs.'+i+'.code" value="'+esc(it.code)+'" placeholder="如《学生行为规范》第 8.2 条"></div>'
+    +'<div class="fld"><span class="fld-l">条款内容</span><input type="text" data-bind="regs.'+i+'.desc" value="'+esc(it.desc)+'" placeholder="条款摘要">'
+    +(en?'<input type="text" class="en-in" data-bind="regs.'+i+'.descEn" value="'+esc(it.descEn)+'" placeholder="English">':'')+'</div>'
+    +'<button class="del" data-act="del" data-list="regs" data-i="'+i+'" title="删除本行">×</button></div>';
+}
+function rowOfficial(it,i){
+  var en=state.lang!=='zh';
+  return '<div class="row r2">'
+    +'<div class="fld"><span class="fld-l">姓名</span><input type="text" data-bind="officials.'+i+'.name" value="'+esc(it.name)+'" placeholder="签名显示名">'
+    +(en?'<input type="text" class="en-in" data-bind="officials.'+i+'.nameEn" value="'+esc(it.nameEn)+'" placeholder="English">':'')+'</div>'
+    +'<div class="fld"><span class="fld-l">职务</span><input type="text" data-bind="officials.'+i+'.title" value="'+esc(it.title)+'" placeholder="如：学生处主任" list="titleList"></div>'
+    +'<button class="del" data-act="del" data-list="officials" data-i="'+i+'" title="删除本行">×</button></div>';
+}
+function rowResult(it,i){
+  var en=state.lang!=='zh';
+  return '<div class="row r4">'
+    +'<div class="fld"><span class="fld-l">序号</span><input type="text" data-bind="resultRows.'+i+'.rank" value="'+esc(it.rank)+'"></div>'
+    +'<div class="fld"><span class="fld-l">姓名 / 班级</span><input type="text" data-bind="resultRows.'+i+'.name" value="'+esc(it.name)+'">'
+    +(en?'<input type="text" class="en-in" data-bind="resultRows.'+i+'.nameEn" value="'+esc(it.nameEn)+'" placeholder="English">':'')+'</div>'
+    +'<div class="fld"><span class="fld-l">结果</span><input type="text" data-bind="resultRows.'+i+'.result" value="'+esc(it.result)+'" placeholder="如：优秀 / 通过"></div>'
+    +'<div class="fld"><span class="fld-l">备注</span><input type="text" data-bind="resultRows.'+i+'.remark" value="'+esc(it.remark)+'" placeholder="选填"></div>'
+    +'<button class="del" data-act="del" data-list="resultRows" data-i="'+i+'" title="删除本行">×</button></div>';
+}
+function rowAttach(it,i){
+  return '<div class="row r1">'
+    +'<div class="fld"><span class="fld-l">附件 '+(i+1)+'</span><input type="text" data-bind="attachments.'+i+'" value="'+esc(it)+'" placeholder="附件名称"></div>'
+    +'<button class="del" data-act="del" data-list="attachments" data-i="'+i+'" title="删除本行">×</button></div>';
+}
+
+function listCard(key,title,hint,rowFn){
+  var h='<div class="card"><div class="card-h"><span class="card-t">'+title+'</span><span class="card-hint">'+hint+'</span></div><div class="card-b"><div class="rows">';
+  arr(key).forEach(function(it,i){h+=rowFn(it,i);});
+  return h+'</div><button class="add-btn" data-act="add" data-list="'+key+'">＋ 添加一行</button></div></div>';
+}
+
+function bodyForm(){
+  var s=state,d=s.doc,h='<div class="card"><div class="card-h"><span class="card-t">正文内容</span><span class="card-hint">'+TYPE_MAP[s.type].zh+'</span></div><div class="card-b">';
+  if(s.type==='decision'){
+    h+=fArea('事实经过','doc.facts',4,'时间、地点、行为、证据……');
+    h+=subH('事发信息');
+    h+=fGrid(fInp('发生时间','doc.incTime','10:15',false)+fInp('节次','doc.incSession','第 3 节',false));
+    h+=fInp('地点','doc.incPlace','B305 教室',false);
+    h+=fArea('决定内容','doc.decision',4,'处理结论……');
+  }else if(s.type==='summons'){
+    h+=fGrid(fInp('被约谈人','doc.summoned','姓名')+fInp('班级 / 年级','doc.summonedRole','G10-A 班'));
+    h+=fArea('约谈事由','doc.reason',3,'需说明 / 核实的事项……');
+    h+=subH('到校要求');
+    h+=fGrid(fInp('到校时间','doc.appearWhen','2026-10-22 09:00',false)+fInp('谈话地点','doc.appearWhere','学生处办公室（A201）',false));
+    h+=fArea('未按时到校的后果','doc.consequence',3,'未按时到校的后果……');
+  }else if(s.type==='penalty'){
+    h+=fArea('违纪事实','doc.infringement',4,'违纪行为、证据……');
+    h+=subH('处分类型（多选）');
+    h+='<div class="pen-pills">'+PENALTIES.map(function(p){
+      var on=(d.penaltyTypes||[]).indexOf(p.v)>=0;
+      return '<button type="button" class="pen-pill'+(on?' on':'')+'" data-act="pen" data-v="'+p.v+'">'+p.zh+'</button>';
+    }).join('')+'</div>';
+    h+=fArea('处分具体内容','doc.penaltyDetail',3,'处分措施细节……');
+    h+=fInp('执行期限','doc.execDeadline','如：公示期满后 / 2026-10-28',false);
+  }else if(s.type==='bulletin'){
+    h+=fArea('正文','doc.body',6,'公告正文内容……');
+  }else if(s.type==='results'){
+    h+=fInp('公示项目','doc.resultCategory','如：2026 学年“优秀学生”评选结果');
+  }
+  return h+'</div></div>';
+}
+
+function buildForm(){
+  var s=state,h='';
+  h+='<details class="card"><summary class="card-h"><span class="card-t">机构设置</span><span class="card-hint">信头 / 徽标 / 编号前缀</span></summary><div class="card-b">'
+    +fInp('机构名称','org.name','GUIS-ULC 学生处',false)
+    +fInp('机构名称（英文）','org.nameEn','GUIS-ULC Student Office',false)
+    +fGrid(fInp('发文部门','org.dept','学生处',false)+fInp('编号前缀','org.prefix','ULC-SA',false))
+    +fInp('徽标缩写','org.abbr','GUIS',false)
+    +'</div></details>';
+  h+='<div class="card"><div class="card-h"><span class="card-t">文件信息</span><span class="card-hint">编号 / 日期 / 密级 / 收发</span></div><div class="card-b">'
+    +'<div class="fld"><span class="fld-l">文件编号</span><div class="no-row"><input type="text" data-bind="meta.no" value="'+esc(s.meta.no)+'"><button class="mini-btn" data-act="autono" title="按前缀自动生成">自动生成</button></div></div>'
+    +'<div class="fld"><span class="fld-l">密级</span><div class="seg"><button data-act="cls" data-v="public" class="'+(s.meta.cls==='public'?'on':'')+'">公开</button><button data-act="cls" data-v="internal" class="'+(s.meta.cls==='internal'?'on':'')+'">内部</button></div></div>'
+    +fGrid('<label class="fld"><span class="fld-l">签发日期</span><input type="date" data-bind="meta.date" value="'+esc(s.meta.date)+'"></label>'
+      +'<label class="fld"><span class="fld-l">签发时间（UTC+8）</span><input type="time" data-bind="meta.time" value="'+esc(s.meta.time)+'"></label>')
+    +fInp('自（From）','meta.from','GUIS-ULC 学生处')
+    +fInp('至（To）','meta.to','相关学生及家长')
+    +'</div></div>';
+  h+='<div class="card"><div class="card-h"><span class="card-t">活动与标题</span><span class="card-hint">事件 / 事项 / 文件标题</span></div><div class="card-b">'
+    +fInp('活动 / 事件名称','doc.event','ULC 2026 学年秋季学期')
+    +fInp('事项 / 场景','doc.session','日常管理 · 课堂纪律')
+    +fInp('文件标题','doc.title','关于××的处理决定')
+    +'</div></div>';
+  h+=bodyForm();
+  if(s.type==='decision'||s.type==='penalty')h+=listCard('parties','相关学生','涉及的学生 / 班级',rowParty);
+  if(s.type==='decision'||s.type==='penalty')h+=listCard('regs','依据条款','文件引用的规则条款',rowReg);
+  if(s.type==='bulletin')h+=listCard('attachments','附件','随文发布的附件',rowAttach);
+  if(s.type==='results')h+=listCard('resultRows','公示名单','按顺序填写',rowResult);
+  h+=listCard('officials','签发官员','显示在文件末尾签名区',rowOfficial);
+  h+='<datalist id="titleList"><option>学生处主任</option><option>学生处干事</option><option>年级组长</option><option>班主任</option><option>学生申诉委员会</option><option>审核人</option><option>校长</option></datalist>';
+  h+='<div class="card"><div class="card-h"><span class="card-t">生效与附注</span><span class="card-hint">申诉权利 / 其他事项</span></div><div class="card-b">'
+    +fArea('生效说明','doc.effective',2,'如：本决定自签发之日起生效。')
+    +fArea('附注 / 申诉权利','doc.appeal',3,'申诉期限、受理机构等……')
+    +'</div></div>';
+  h+='<div class="editor-tip">所有内容仅保存于本机浏览器；「导出文档」可生成独立 HTML 用于打印或分享。</div>';
+  return h;
+}
+function renderForm(){var st=editor.scrollTop;editor.innerHTML=buildForm();editor.scrollTop=st;}
+
+/* ================= 预览构建 ================= */
+function emblemSVG(abbr){
+  var fs=abbr.length>4?14:abbr.length>2?18:23;
+  return '<svg class="emblem" viewBox="0 0 100 100" aria-hidden="true">'
+    +'<circle cx="50" cy="50" r="47" fill="none" stroke="#9C2126" stroke-width="2.2"/>'
+    +'<circle cx="50" cy="50" r="41" fill="none" stroke="#9C2126" stroke-width="0.9"/>'
+    +'<path d="M50 18l2.94 7.95 8.47.34-6.65 5.26 2.29 8.16-7.05-4.71-7.05 4.71 2.29-8.16-6.65-5.26 8.47-.34z" fill="#9C2126"/>'
+    +'<text x="50" y="64" text-anchor="middle" font-family="Georgia,\'Times New Roman\',serif" font-weight="700" font-size="'+fs+'" fill="#9C2126">'+esc(abbr)+'</text>'
+    +'<text x="50" y="77" text-anchor="middle" font-family="Georgia,serif" font-size="7.5" letter-spacing="1.5" fill="#9C2126">OFFICIAL</text>'
+    +'</svg>';
+}
+function headHTML(){
+  var s=state;
+  var abbr=(s.org.abbr||'').trim();
+  if(!abbr){
+    var words=(s.org.nameEn||'').replace(/[^A-Za-z ]/g,' ').trim().split(/\s+/).filter(Boolean);
+    abbr=words.length?(words[0].length<=5?words[0].toUpperCase():words.map(function(w){return w[0];}).join('').toUpperCase()):(s.org.name||'官').slice(0,2);
+  }
+  return '<div class="doc-head"><div class="lh">'+emblemSVG(abbr)
+    +'<div class="lh-t"><div class="org-name">'+esc(s.org.name)+'</div>'
+    +(s.lang!=='zh'?'<div class="org-name-en">'+esc(s.org.nameEn)+'</div>':'')
+    +'<div class="org-dept">'+esc(s.org.dept)+'<span class="sep">·</span>'+(s.lang==='en'?'OFFICIAL DOCUMENT':'官方文件')+'</div></div></div>'
+    +'<div class="doc-no-box"><div class="k">'+(s.lang==='en'?'DOCUMENT NO.':'文件编号')+'</div><div class="v">'+esc(s.meta.no||'————')+'</div></div></div>';
+}
+function metaHTML(){
+  var s=state,L=s.lang;
+  function k(zh,en){return L==='en'?en:(L==='zh'?zh:zh+' '+en);}
+  var clsV=s.meta.cls==='internal'?(L==='en'?'Internal':'内部'):(L==='en'?'Public':'公开');
+  return '<table class="meta-grid">'
+    +'<tr><td class="k">'+k('文件编号','Doc. No.')+'</td><td class="mono">'+esc(s.meta.no||'————')+'</td><td class="k">'+k('密级','Classification')+'</td><td>'+clsV+'</td></tr>'
+    +'<tr><td class="k">'+k('签发日期','Date of Issue')+'</td><td>'+fmtDate(s.meta.date)+'</td><td class="k">'+k('签发时间','Time of Issue')+'</td><td>'+esc(s.meta.time||'——')+' (UTC+8)</td></tr>'
+    +'<tr><td class="k">'+k('自','From')+'</td><td>'+valTxt(s.meta.from,s.meta.fromEn)+'</td><td class="k">'+k('至','To')+'</td><td>'+valTxt(s.meta.to,s.meta.toEn)+'</td></tr>'
+    +'<tr><td class="k">'+k('活动 / 事件','Event')+'</td><td>'+valTxt(s.doc.event,s.doc.eventEn)+'</td><td class="k">'+k('环节 / 场次','Session')+'</td><td>'+valTxt(s.doc.session,s.doc.sessionEn)+'</td></tr>'
+    +'</table>';
+}
+function valTxt(v,en){
+  if(!v&&!en)return '<span class="ph">————</span>';
+  if(state.lang==='en')return esc(en||v);
+  if(state.lang==='zh')return esc(v);
+  return esc(v)+(en?'<div class="sub">'+esc(en)+'</div>':'');
+}
+function titleHTML(){
+  var s=state,L=s.lang;
+  var zh=s.doc.title||TITLES[s.type].zh,en=s.doc.titleEn||TITLES[s.type].en;
+  if(L==='en')return '<h1 class="doc-title">'+esc(en)+'</h1><div class="title-zh-sub">'+esc(zh)+'</div>';
+  if(L==='zh')return '<h1 class="doc-title">'+esc(zh)+'</h1>';
+  return '<h1 class="doc-title">'+esc(zh)+'</h1><div class="doc-title-en">'+esc(en)+'</div>';
+}
+function sec(i,zh,en){
+  var L=state.lang;
+  if(L==='en')return '<h2 class="sec-h">'+RM[i]+'. '+en+'</h2>';
+  if(L==='zh')return '<h2 class="sec-h">'+CN[i]+'、'+zh+'</h2>';
+  return '<h2 class="sec-h">'+CN[i]+'、'+zh+'<span class="en">'+en+'</span></h2>';
+}
+function k2(zh,en){var L=state.lang;return L==='en'?en:(L==='zh'?zh:zh+' '+en);}
+function nl(t){
+  var r=String(t||'').split(/\n+/).map(function(x){return x.trim();}).filter(Boolean).map(esc).join('</p><p class="doc-p">');
+  return r||'<span class="ph">————</span>';
+}
+function p(zh,en){
+  var L=state.lang,h='';
+  if(L!=='en')h+='<p class="doc-p">'+nl(zh)+'</p>';
+  if(L!=='zh'&&en&&String(en).trim())h+='<p class="doc-p en-p">'+nl(en)+'</p>';
+  if(L==='en'&&(!en||!String(en).trim())&&zh&&String(zh).trim())h='<p class="doc-p">'+nl(zh)+'</p>';
+  return h;
+}
+function strip(items){
+  var its=items.filter(function(x){return x[1]&&String(x[1]).trim();});
+  if(!its.length)return '';
+  return '<div class="strip">'+its.map(function(x){return '<span class="item"><b>'+x[0]+'</b>'+x[1]+'</span>';}).join('')+'</div>';
+}
+function partiesTable(){
+  var s=state,ps=arr('parties').filter(function(x){return (x.name||'').trim()||(x.role||'').trim();});
+  if(!ps.length)return '<p class="doc-p ph">————</p>';
+  var L=s.lang;
+  var h='<table class="doc-table"><thead><tr><th style="width:10%">'+(L==='en'?'No.':'序号')+'</th><th>'+(L==='en'?'Student':'学生')+'</th><th>'+(L==='en'?'Class / Grade':'班级 / 年级')+'</th></tr></thead><tbody>';
+  ps.forEach(function(x,i){
+    h+='<tr><td>'+(i+1)+'</td><td>'+esc(x.name||'——')+(s.lang!=='zh'&&x.nameEn?'<div class="sub">'+esc(x.nameEn)+'</div>':'')+'</td><td class="l">'+esc(x.role||'——')+'</td></tr>';
+  });
+  return h+'</tbody></table>';
+}
+function regList(){
+  var s=state,rs=arr('regs').filter(function(x){return (x.code||'').trim()||(x.desc||'').trim();});
+  if(!rs.length)return '<p class="doc-p ph">————</p>';
+  var h='<ul class="reg-list">';
+  rs.forEach(function(x,i){
+    h+='<li><b>'+esc(x.code||'（条款 '+(i+1)+'）')+'</b>'+(x.desc?esc(x.desc):'')+(s.lang!=='zh'&&x.descEn?'<div class="sub">'+esc(x.descEn)+'</div>':'')+'</li>';
+  });
+  return h+'</ul>';
+}
+function penChips(){
+  var sel=state.doc.penaltyTypes||[];
+  if(!sel.length)return '<p class="doc-p ph">————（未选择处分类型）</p>';
+  return '<div class="pen-chips">'+sel.map(function(v){
+    var pt=PENALTIES.filter(function(x){return x.v===v;})[0];
+    return pt?'<span class="pen-chip">'+(state.lang==='en'?pt.en:pt.zh)+'</span>':'';
+  }).join('')+'</div>';
+}
+function attachList(){
+  var as=arr('attachments').filter(function(a){return a&&String(a).trim();});
+  if(!as.length)return '<p class="doc-p ph">————</p>';
+  return '<ul class="att-list">'+as.map(function(a,i){return '<li><span class="att-no">附件 '+(i+1)+'</span>'+esc(a)+'</li>';}).join('')+'</ul>';
+}
+function resultsTable(){
+  var s=state,L=s.lang,rs=arr('resultRows').filter(function(r){return (r.name||'').trim()||(r.result||'').trim();});
+  var head='<tr><th style="width:11%">'+(L==='en'?'No.':'序号')+'</th><th>'+(L==='en'?'Name / Class':'姓名 / 班级')+'</th><th style="width:22%">'+(L==='en'?'Result':'结果')+'</th><th style="width:27%">'+(L==='en'?'Remarks':'备注')+'</th></tr>';
+  if(!rs.length)return '<table class="doc-table"><thead>'+head+'</thead><tbody><tr><td colspan="4" class="ph">————</td></tr></tbody></table>';
+  var b=rs.map(function(r){
+    return '<tr><td>'+esc(r.rank||'—')+'</td><td>'+esc(r.name||'——')+(s.lang!=='zh'&&r.nameEn?'<div class="sub">'+esc(r.nameEn)+'</div>':'')+'</td><td class="mono">'+esc(r.result||'——')+'</td><td class="l">'+esc(r.remark||'——')+'</td></tr>';
+  }).join('');
+  return '<table class="doc-table"><thead>'+head+'</thead><tbody>'+b+'</tbody></table>';
+}
+function bodyDecision(){
+  var d=state.doc;
+  return sec(0,'事实经过','Facts of the Matter')+p(d.facts,d.factsEn)
+    +strip([[k2('发生时间','Time'),esc(d.incTime)],[k2('节次','Period'),esc(d.incSession)],[k2('地点','Location'),esc(d.incPlace)]])
+    +sec(1,'涉及学生','Students Involved')+partiesTable()
+    +sec(2,'规则依据','Regulatory Basis')+regList()
+    +sec(3,'决定内容','Decision')+p(d.decision,d.decisionEn)
+    +sec(4,'生效与申诉','Effect and Right of Appeal')+p(d.effective,d.effectiveEn)+p(d.appeal,d.appealEn);
+}
+function bodySummons(){
+  var d=state.doc;
+  return sec(0,'被约谈人','The Person to be Met')+strip([[k2('姓名','Name'),valTxt(d.summoned,d.summonedEn)],[k2('班级 / 年级','Class / Grade'),esc(d.summonedRole)]])
+    +sec(1,'约谈事由','Reason for the Meeting')+p(d.reason,d.reasonEn)
+    +sec(2,'到校要求','Appearance')+strip([[k2('到校时间','When'),esc(d.appearWhen)],[k2('谈话地点','Where'),esc(d.appearWhere)]])
+    +sec(3,'未按时到校的后果','Consequence of Non-Attendance')+p(d.consequence,d.consequenceEn)
+    +sec(4,'附注','Additional Notes')+p(d.appeal);
+}
+function bodyPenalty(){
+  var d=state.doc;
+  return sec(0,'违纪事实','The Misconduct')+p(d.infringement,d.infringementEn)
+    +sec(1,'规则依据','Regulatory Basis')+regList()
+    +sec(2,'处分决定','Disciplinary Action')+penChips()+p(d.penaltyDetail,d.penaltyDetailEn)
+    +sec(3,'执行与申诉','Execution and Appeal')+strip([[k2('执行期限','Deadline'),esc(d.execDeadline)]])+p(d.appeal,d.appealEn);
+}
+function bodyBulletin(){
+  var d=state.doc;
+  return sec(0,'正文','Notice')+p(d.body,d.bodyEn)
+    +sec(1,'附件','Attachments')+attachList()
+    +sec(2,'附注','Additional Notes')+p(d.appeal,d.appealEn);
+}
+function bodyResults(){
+  var d=state.doc;
+  return sec(0,'公示项目','Category')+p(d.resultCategory,d.resultCategoryEn)
+    +sec(1,'公示名单','Public List')+resultsTable()
+    +sec(2,'附注','Remarks')+p(d.appeal,d.appealEn);
+}
+function signHTML(){
+  var s=state,L=s.lang;
+  var offs=arr('officials').filter(function(o){return (o.name||'').trim()||(o.title||'').trim();});
+  if(!offs.length)offs=[{name:'',nameEn:'',title:'学生处干事'}];
+  var blocks=offs.map(function(o){
+    var who;
+    if(L==='en')who=o.nameEn?esc(o.nameEn):(o.name?esc(o.name):'<span class="ph2">(to be signed)</span>');
+    else if(L!=='zh'&&o.nameEn)who=esc(o.name)+'<span class="who-en">'+esc(o.nameEn)+'</span>';
+    else who=o.name?esc(o.name):'<span class="ph2">（待签署）</span>';
+    return '<div class="sig-block"><div class="line"><span class="who '+(L==='en'?'en':'')+'">'+who+'</span></div><div class="t">'+esc(o.title||'')+'</div></div>';
+  }).join('');
+  return '<div class="sig-wrap"><div class="end-mark">'+(L==='en'?'— End of Document —':'（以下无正文）')+'</div>'
+    +'<div class="sig-org">'+esc(s.org.dept)+'</div>'
+    +'<div class="signatures">'+blocks+'</div>'
+    +'<div class="sig-date">'+(L==='en'?'Date of Issue: ':'签发日期：')+fmtDate(s.meta.date)+'</div></div>';
+}
+function renderPaper(){
+  var s=state;
+  paper.className='paper lang-'+s.lang;
+  var h=headHTML()+metaHTML()+titleHTML();
+  if(s.type==='decision')h+=bodyDecision();
+  else if(s.type==='summons')h+=bodySummons();
+  else if(s.type==='penalty')h+=bodyPenalty();
+  else if(s.type==='bulletin')h+=bodyBulletin();
+  else h+=bodyResults();
+  paper.innerHTML=h+signHTML();
+  layoutZoom();
+}
+
+/* ================= 缩放 ================= */
+var zoom=1;
+function setZoom(z){zoom=Math.max(.3,Math.min(1.6,z));layoutZoom();}
+function fitZoom(){var w=pvWrap.clientWidth-64;zoom=Math.max(.3,Math.min(1,w/paper.offsetWidth));layoutZoom();}
+function layoutZoom(){
+  paper.style.transform='scale('+zoom+')';
+  pvSizer.style.width=(paper.offsetWidth*zoom)+'px';
+  pvSizer.style.height=(paper.offsetHeight*zoom)+'px';
+  $('#zoomLabel').textContent=Math.round(zoom*100)+'%';
+}
+
+/* ================= 交互 ================= */
+var editor=$('#editor'),paper=$('#paper'),pvWrap=$('#pvWrap'),pvSizer=$('#pvSizer'),draftMask=$('#draftMask');
+var saveTimer=null;
+function scheduleSave(){clearTimeout(saveTimer);saveTimer=setTimeout(function(){try{localStorage.setItem(KEY_CUR,JSON.stringify(state));}catch(e){}},400);}
+function renderAll(){renderForm();renderPaper();}
+function setType(t){
+  if(!TYPE_MAP[t]||state.type===t)return;
+  state.type=t;applyTypeDefaults(state);
+  $$('#typebar .pill').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-v')===t);});
+  renderAll();scheduleSave();
+}
+function togglePen(v){
+  var list=state.doc.penaltyTypes||(state.doc.penaltyTypes=[]);
+  var i=list.indexOf(v);
+  if(i>=0)list.splice(i,1);else list.push(v);
+  renderAll();scheduleSave();
+}
+function addRow(key){
+  var a=arr(key);
+  if(key==='parties')a.push({name:'',nameEn:'',role:'',no:''});
+  else if(key==='regs')a.push({code:'',desc:'',descEn:''});
+  else if(key==='officials')a.push({name:'',nameEn:'',title:'学生处干事'});
+  else if(key==='resultRows')a.push({rank:String(a.length+1),name:'',nameEn:'',result:'',remark:''});
+  else a.push('');
+  renderAll();scheduleSave();
+}
+function delRow(key,i){
+  var a=arr(key);
+  if(a.length<=1){toast('至少保留一行');return;}
+  a.splice(i,1);renderAll();scheduleSave();
+}
+function handleAct(act){
+  var a=act.getAttribute('data-act');
+  if(a==='type')setType(act.getAttribute('data-v'));
+  else if(a==='lang'){state.lang=act.getAttribute('data-v');syncLangSeg();renderAll();scheduleSave();}
+  else if(a==='cls'){state.meta.cls=act.getAttribute('data-v');renderAll();scheduleSave();}
+  else if(a==='pen')togglePen(act.getAttribute('data-v'));
+  else if(a==='add')addRow(act.getAttribute('data-list'));
+  else if(a==='del')delRow(act.getAttribute('data-list'),+act.getAttribute('data-i'));
+  else if(a==='autono'){autoNo();renderAll();scheduleSave();toast('已生成编号：'+state.meta.no);}
+  else if(a==='zoom-in')setZoom(zoom+.1);
+  else if(a==='zoom-out')setZoom(zoom-.1);
+  else if(a==='zoom-fit')fitZoom();
+  else if(a==='close-drafts')draftMask.hidden=true;
+  else if(a==='load-draft')loadDraft(+act.getAttribute('data-id'));
+  else if(a==='del-draft')delDraft(+act.getAttribute('data-id'));
+}
+function syncLangSeg(){$$('#langSeg button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-v')===state.lang);});}
+function syncTypebar(){$$('#typebar .pill').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-v')===state.type);});}
+
+document.addEventListener('click',function(e){
+  var act=e.target&&e.target.closest?e.target.closest('[data-act]'):null;
+  if(act)handleAct(act);
+});
+function bindInputs(){
+  function onInput(e){
+    var b=e.target.getAttribute&&e.target.getAttribute('data-bind');
+    if(b){sp(state,b,e.target.value);renderPaper();scheduleSave();}
+  }
+  editor.addEventListener('input',onInput);
+  editor.addEventListener('change',onInput);
+}
+function buildTypebar(){
+  $('#typebar').innerHTML=TYPES.map(function(t){
+    return '<button class="pill'+(state.type===t.id?' active':'')+'" data-act="type" data-v="'+t.id+'">'+t.zh+'</button>';
+  }).join('');
+}
+
+/* ================= 草稿 / 导入导出 ================= */
+function loadDrafts(){try{return JSON.parse(localStorage.getItem(KEY_DRAFTS)||'[]');}catch(e){return [];}}
+function saveDrafts(list){try{localStorage.setItem(KEY_DRAFTS,JSON.stringify(list));}catch(e){toast('保存失败：存储空间不足');}}
+function saveDraft(){
+  var list=loadDrafts();
+  var name=(state.doc.title||TYPE_MAP[state.type].zh)+' · '+(state.meta.no||'未编号');
+  list.unshift({id:Date.now(),name:name,at:new Date().toISOString(),state:JSON.parse(JSON.stringify(state))});
+  saveDrafts(list);toast('已保存草稿：'+name);
+}
+function openDrafts(){
+  var list=loadDrafts(),box=$('#draftList');
+  if(!list.length)box.innerHTML='<div class="empty">暂无草稿。<br>点击「保存草稿」即可将当前文件存入草稿箱。</div>';
+  else box.innerHTML=list.map(function(d){
+    return '<div class="draft-item"><div class="di-txt"><div class="di-name">'+esc(d.name)+'</div><div class="di-meta">'
+      +new Date(d.at).toLocaleString('zh-CN',{hour12:false})+' · '+esc(d.state&&d.state.meta?d.state.meta.no:'')+' · '+(TYPE_MAP[d.state&&d.state.type]?TYPE_MAP[d.state.type].zh:'')+'</div></div>'
+      +'<div class="di-ops"><button class="mini-btn" data-act="load-draft" data-id="'+d.id+'">载入</button><button class="mini-btn danger" data-act="del-draft" data-id="'+d.id+'">删除</button></div></div>';
+  }).join('');
+  draftMask.hidden=false;
+}
+function loadDraft(id){
+  var list=loadDrafts(),d=list.filter(function(x){return x.id===id;})[0];
+  if(!d||!d.state)return;
+  var s=Object.assign(blank(),d.state);
+  if(!TYPE_MAP[s.type])s.type='decision';
+  state=s;applyTypeDefaults(state);
+  draftMask.hidden=true;syncTypebar();syncLangSeg();renderAll();toast('已载入草稿');
+}
+function delDraft(id){
+  saveDrafts(loadDrafts().filter(function(x){return x.id!==id;}));
+  openDrafts();toast('已删除');
+}
+function exportJson(){
+  download(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),'officialdoc-'+(state.meta.no||'draft')+'.json');
+  toast('已导出 JSON 备份');
+}
+function exportHtml(){
+  var css=$('#css-paper').textContent;
+  var doc='<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">'
+    +'<title>'+esc(state.meta.no||state.doc.title||'官方文件')+'</title>'
+    +'<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+    +'<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Ma+Shan+Zheng&family=Caveat:wght@500;600&display=swap" rel="stylesheet">'
+    +'<style>'+css+'\nbody{margin:0;background:#eef0f3;display:flex;justify-content:center;padding:26px 0}'
+    +'\n.paper{position:static;transform:none}'
+    +'\n@media print{body{background:#fff;padding:0;display:block}.paper{box-shadow:none;margin:0;padding:0;width:auto;min-height:0}@page{size:A4;margin:16mm 15mm}}</style>'
+    +'</head><body>'+paper.outerHTML+'</body></html>';
+  download(new Blob([doc],{type:'text/html'}),'doc-'+(state.meta.no||'document')+'.html');
+  toast('已导出独立 HTML 文档');
+}
+
+/* ================= 初始化 ================= */
+var state=example();
+(function init(){
+  try{var cur=localStorage.getItem(KEY_CUR);if(cur){var s=JSON.parse(cur);if(s&&s.meta&&s.doc){state=Object.assign(blank(),s);toast('已恢复上次编辑内容');}}}catch(e){}
+  if(!TYPE_MAP[state.type])state.type='decision';
+  applyTypeDefaults(state);
+  if(!state.meta.no)autoNo();
+  buildTypebar();syncLangSeg();renderAll();fitZoom();
+  bindInputs();
+  $('#btnExample').addEventListener('click',function(){state=example();applyTypeDefaults(state);syncTypebar();syncLangSeg();renderAll();toast('已载入示例文件');});
+  $('#btnNew').addEventListener('click',function(){state=blank();autoNo();applyTypeDefaults(state);syncTypebar();syncLangSeg();renderAll();toast('已新建空白文件');});
+  $('#btnSave').addEventListener('click',saveDraft);
+  $('#btnDrafts').addEventListener('click',openDrafts);
+  $('#btnExportJson').addEventListener('click',exportJson);
+  $('#btnImportJson').addEventListener('click',function(){$('#fileInput').click();});
+  $('#btnExportHtml').addEventListener('click',exportHtml);
+  $('#btnPrint').addEventListener('click',function(){window.print();});
+  $('#fileInput').addEventListener('change',function(e){
+    var f=e.target.files&&e.target.files[0];if(!f)return;
+    var r=new FileReader();
+    r.onload=function(){
+      try{
+        var s=JSON.parse(r.result);
+        if(!s||!s.meta||!s.doc)throw new Error('bad format');
+        if(!TYPE_MAP[s.type])s.type='decision';
+        state=Object.assign(blank(),s);applyTypeDefaults(state);
+        syncTypebar();syncLangSeg();renderAll();toast('导入成功');
+      }catch(err){toast('导入失败：文件格式不正确');}
+      e.target.value='';
+    };
+    r.readAsText(f);
+  });
+  draftMask.addEventListener('click',function(e){if(e.target===draftMask)draftMask.hidden=true;});
+  document.addEventListener('keydown',function(e){
+    if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='s'){e.preventDefault();saveDraft();}
+  });
+  var rzT=null;
+  window.addEventListener('resize',function(){clearTimeout(rzT);rzT=setTimeout(fitZoom,150);});
+})();
+})();
+</script>
+</body>
+</html>
