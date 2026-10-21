@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>OfficialDoc · 官方文件生成门户</title>
+<title>OfficialDoc Portal</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='none' stroke='%239C2126' stroke-width='7'/%3E%3Cpath d='M50 18l7 15 16 2-11.5 11 3 16-14.5-7.6-14.5 7.6 3-16-11.5-11 16-2z' fill='%239C2126'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -83,12 +83,24 @@ input[type=text],input[type=date],input[type=time],textarea{width:100%;border:1p
 input:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(156,33,38,.12)}
 textarea{resize:vertical;min-height:72px;line-height:1.65}
 .en-in{margin-top:3px;font-size:12px;background:#fcfcfd}
+.in-row{display:flex;align-items:center;gap:7px;min-width:0}
+.in-row input,.in-row textarea{flex:1}
+.lang-chip{flex:none;font-size:9.5px;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-weight:600;letter-spacing:.3px;line-height:1.5}
+.title-sub-zh{font-family:"Noto Serif SC",serif;text-transform:none;letter-spacing:.15em}
+.org-name-zhsub{font-size:10.5px;letter-spacing:1.5px;color:#5a6068;margin-top:3px;font-family:"Noto Serif SC",serif}
+.org-dept .dept-en{font-size:9.5px;color:#b07a7d;margin-left:8px;letter-spacing:1.5px;font-weight:500}
+.sig-org .dept-en{font-size:10px;color:#7a8088;font-weight:500;letter-spacing:1px;margin-left:8px}
 .no-row{display:flex;gap:8px}
 .no-row input{flex:1}
 .mini-btn{border:1px solid var(--line-strong);background:#fff;border-radius:8px;padding:6px 11px;font-size:11.5px;cursor:pointer;color:var(--ink-2);transition:all .15s;white-space:nowrap}
 .mini-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
 .mini-btn.danger:hover{border-color:#b42318;color:#b42318;background:#fef3f2}
 .sub-h{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:1.5px;display:flex;align-items:center;gap:8px;margin:2px 0 -2px}
+.title-preview{font-family:"Noto Serif SC","Source Han Serif SC","SimSun",serif;font-weight:700;font-size:15.5px;text-align:center;padding:11px 14px;background:#faf7f6;border:1px dashed #d9c8c3;border-radius:8px;color:#3a3f45;letter-spacing:.04em;line-height:1.55}
+.title-preview-en{font-family:Georgia,"Times New Roman",serif;font-size:10.5px;text-align:center;padding:7px 14px 0;color:#8a9098;letter-spacing:.09em;text-transform:uppercase;line-height:1.55}
+.title-actions{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px}
+.hint-inline{font-size:11px;color:var(--muted)}
+.auto-tag{font-size:9.5px;font-weight:400;color:var(--accent);background:#fbeef0;border:1px solid #eed0d3;border-radius:99px;padding:1px 8px;margin-left:7px;letter-spacing:.08em}
 .sub-h::after{content:"";flex:1;height:1px;background:var(--line)}
 .rows{display:flex;flex-direction:column;gap:9px}
 .row{display:grid;gap:9px;align-items:end;position:relative;padding:10px 36px 10px 11px;border:1px solid var(--line);border-radius:10px;background:#fcfcfd;animation:fadeUp .2s ease}
@@ -201,50 +213,54 @@ textarea{resize:vertical;min-height:72px;line-height:1.65}
 
 <header class="topbar">
   <div class="brand">
-    <div class="brand-mark" aria-hidden="true">官</div>
+    <div class="brand-mark" id="brandMark" aria-hidden="true">O</div>
     <div>
-      <div class="brand-name">OfficialDoc<span class="brand-sub">官方文件生成门户</span></div>
-      <div class="brand-dept">GUIS-ULC 学生处 · 正式文书</div>
+      <div class="brand-name">OfficialDoc<span class="brand-sub" id="brandSub">Official Document Portal</span></div>
+      <div class="brand-dept" id="brandDept">GUIS-ULC Student Office · Official Documents</div>
     </div>
   </div>
-  <span class="ver">v0.1 草拟版</span>
-  <nav class="typebar" id="typebar" aria-label="文件类型"></nav>
+  <span class="ver" id="verBadge">v1.0</span>
+  <nav class="typebar" id="typebar" aria-label="Document type"></nav>
   <div class="actions">
-    <button class="btn" id="btnExample" title="载入一份示例文件">示例</button>
-    <button class="btn" id="btnNew" title="新建空白文件">新建</button>
-    <button class="btn" id="btnSave" title="保存到草稿箱（Ctrl/Cmd + S）">保存草稿</button>
-    <button class="btn" id="btnDrafts">草稿箱</button>
-    <button class="btn" id="btnExportJson" title="导出为 JSON 备份">导出 JSON</button>
-    <button class="btn" id="btnImportJson" title="从 JSON 备份恢复">导入</button>
-    <button class="btn" id="btnExportHtml" title="导出可打印的独立 HTML 文档">导出文档</button>
-    <button class="btn primary" id="btnPrint" title="调用浏览器打印 / 另存为 PDF">打印 / 导出 PDF</button>
+    <div class="seg" id="uiSeg" role="group" aria-label="Interface language">
+      <button data-act="uilang" data-v="zh">中文</button>
+      <button data-act="uilang" data-v="en" class="on">EN</button>
+    </div>
+    <button class="btn" id="btnExample" title="Load a sample document">Example</button>
+    <button class="btn" id="btnNew" title="Create a blank document">New</button>
+    <button class="btn" id="btnSave" title="Save to drafts (Ctrl/Cmd + S)">Save Draft</button>
+    <button class="btn" id="btnDrafts">Drafts</button>
+    <button class="btn" id="btnExportJson" title="Export a JSON backup">Export JSON</button>
+    <button class="btn" id="btnImportJson" title="Restore from a JSON backup">Import</button>
+    <button class="btn" id="btnExportHtml" title="Export a standalone printable HTML document">Export Doc</button>
+    <button class="btn primary" id="btnPrint" title="Browser print / save as PDF">Print / PDF</button>
     <input type="file" id="fileInput" accept=".json,application/json" hidden>
   </div>
 </header>
 
 <main class="main">
-  <aside class="editor" id="editor" aria-label="文件内容编辑区"></aside>
-  <section class="preview-wrap" id="pvWrap" aria-label="文件预览区">
+  <aside class="editor" id="editor" aria-label="Document editor"></aside>
+  <section class="preview-wrap" id="pvWrap" aria-label="Preview">
     <div class="pv-toolbar">
-      <div class="seg" id="langSeg" role="group" aria-label="文件语言">
-        <button data-act="lang" data-v="zh" class="on">中文</button>
+      <div class="seg" id="langSeg" role="group" aria-label="Document language">
+        <button data-act="lang" data-v="zh">中文</button>
         <button data-act="lang" data-v="en">EN</button>
-        <button data-act="lang" data-v="bi">双语</button>
+        <button data-act="lang" data-v="bi">Bilingual</button>
       </div>
-      <div class="zoom" role="group" aria-label="预览缩放">
-        <button data-act="zoom-out" title="缩小">−</button>
+      <div class="zoom" role="group" aria-label="Preview zoom">
+        <button data-act="zoom-out" title="Zoom out">−</button>
         <span id="zoomLabel">100%</span>
-        <button data-act="zoom-in" title="放大">＋</button>
-        <button class="fit-btn" data-act="zoom-fit" title="适应宽度">适应</button>
+        <button data-act="zoom-in" title="Zoom in">＋</button>
+        <button class="fit-btn" data-act="zoom-fit" title="Fit width">Fit</button>
       </div>
     </div>
-    <div class="paper-sizer" id="pvSizer"><article class="paper lang-zh" id="paper"></article></div>
+    <div class="paper-sizer" id="pvSizer"><article class="paper lang-en" id="paper"></article></div>
   </section>
 </main>
 
 <div class="modal-mask" id="draftMask" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="draftTitle">
-    <div class="modal-h"><span id="draftTitle">草稿箱</span><button class="x" data-act="close-drafts" title="关闭">×</button></div>
+    <div class="modal-h"><span id="draftTitle">Drafts</span><button class="x" data-act="close-drafts" title="Close">×</button></div>
     <div class="modal-b" id="draftList"></div>
   </div>
 </div>
@@ -261,6 +277,36 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){retur
 function gp(path){var ks=path.split('.'),o=state;for(var i=0;i<ks.length;i++){if(o==null)return '';o=o[ks[i]];}return o==null?'':o;}
 function sp(path,v){var ks=path.split('.'),o=state;for(var i=0;i<ks.length-1;i++){o=o[ks[i]];}o[ks[ks.length-1]]=v;}
 function arr(k){return state[k]||[];}
+/* ================= 界面语言（UI i18n） ================= */
+var KEY_UI='officialdoc.uilang.v1';
+var uiLang='en';try{uiLang=localStorage.getItem(KEY_UI)||'en';}catch(e){}
+function L2(z,e){return uiLang==='en'?e:z;}
+var LABELS={
+'机构设置':'Organization','信头 / 徽标 / 编号前缀':'Letterhead / emblem / no. prefix','机构名称':'Organization Name','机构名称（英文）':'Organization Name (EN)','发文部门':'Issuing Department','编号前缀':'Number Prefix','徽标缩写':'Emblem Abbreviation',
+'文件信息':'Document Information','编号 / 日期 / 密级 / 收发':'No. / date / classification / from–to','文件编号':'Document No.','自动生成':'Auto','按前缀自动生成':'Generate from prefix','密级':'Classification','公开':'Public','内部':'Internal','签发日期':'Date of Issue','签发时间（UTC+8）':'Time of Issue (UTC+8)','自（From）':'From','至（To）':'To',
+'活动与标题':'Event & Title','事件 / 事项 / 标题自动生成':'Event / matter / auto title','活动 / 事件名称':'Event Name','事项 / 场景':'Matter / Scenario','环节 / 场次':'Session / Stage',
+'正文内容':'Content','事实经过':'Facts of the Matter','事发信息':'Incident Details','发生时间':'Time','节次':'Period','地点':'Location','决定内容':'Decision',
+'被约谈人':'Person to be Met','班级 / 年级':'Class / Grade','约谈事由':'Reason for the Meeting','到校要求':'Appearance Requirements','到校时间':'When','谈话地点':'Where','未按时到校的后果':'Consequence of Non-Attendance',
+'违纪事实':'Misconduct','处分类型（多选）':'Penalty Type (multi-select)','处分具体内容':'Penalty Details','执行期限':'Execution Deadline','正文':'Notice','公示项目':'Category',
+'相关学生':'Students Involved','涉及的学生 / 班级':'Students / classes concerned','姓名':'Name','依据条款':'Regulatory Basis','文件引用的规则条款':'Regulations cited','条款编号':'Regulation No.','条款内容':'Content','附件':'Attachments','随文发布的附件':'Attachments issued','公示名单':'Public List','按顺序填写':'Fill in order','序号':'No.','姓名 / 班级':'Name / Class','结果':'Result','备注':'Remarks',
+'签发官员':'Signatories','显示在文件末尾签名区':'Shown in the signature block','职务':'Title','生效与附注':'Effect & Notes','申诉权利 / 其他事项':'Right of appeal / other matters','生效说明':'Effect','附注 / 申诉权利':'Notes / Right of Appeal',
+'＋ 添加一行':'＋ Add Row','删除本行':'Delete this row','文件标题':'Document Title','手动改写':'Manual','恢复自动生成':'Back to Auto','由「活动名称 + 事项场景」自动生成':'Auto-generated from event name + matter','手动模式下不随活动 / 事项自动更新':'Not auto-updated in manual mode',
+'学生处主任':'Director of Student Affairs','学生处干事':'Student Affairs Officer','年级组长':'Head of Year','班主任':'Homeroom Teacher','学生申诉委员会':'Student Appeals Committee','审核人':'Reviewer','校长':'Principal',
+'示例':'Example','新建':'New','保存草稿':'Save Draft','草稿箱':'Drafts','导出 JSON':'Export JSON','导入':'Import','导出文档':'Export Doc','打印 / 导出 PDF':'Print / PDF',
+'载入一份示例文件':'Load a sample document','新建空白文件':'Create a blank document','保存到草稿箱（Ctrl/Cmd + S）':'Save to drafts (Ctrl/Cmd + S)','导出为 JSON 备份':'Export a JSON backup','从 JSON 备份恢复':'Restore from a JSON backup','导出可打印的独立 HTML 文档':'Export a standalone printable HTML document','调用浏览器打印 / 另存为 PDF':'Browser print / save as PDF',
+'缩小':'Zoom out','放大':'Zoom in','适应宽度':'Fit width','关闭':'Close','载入':'Load','删除':'Delete','文件类型':'Document type','文件内容编辑区':'Document editor','文件预览区':'Preview','文件语言':'Document language','预览缩放':'Preview zoom','界面语言':'Interface language',
+'官方文件生成门户':'Official Document Portal','GUIS-ULC 学生处 · 正式文书':'GUIS-ULC Student Office · Official Documents','官':'O',
+'已恢复上次编辑内容':'Restored your last editing session','已生成编号：':'Number generated: ','已切换为手动标题':'Switched to manual title','已恢复自动生成标题':'Switched back to auto title','至少保留一行':'At least one row is required','已保存草稿：':'Draft saved: ','已载入草稿':'Draft loaded','已删除':'Deleted','已导出 JSON 备份':'JSON backup exported','导入成功':'Import successful','导入失败：文件格式不正确':'Import failed: invalid file format','已导出独立 HTML 文档':'Standalone HTML document exported','已载入示例文件':'Sample document loaded','已新建空白文件':'New blank document created','保存失败：存储空间不足':'Save failed: storage full',
+'暂无草稿。<br>点击「保存草稿」即可将当前文件存入草稿箱。':'No drafts yet.<br>Click “Save Draft” to store the current document.',
+'所有内容仅保存于本机浏览器；「导出文档」可生成独立 HTML 用于打印或分享。':'All content is stored locally in your browser; “Export Doc” generates a standalone HTML file for printing or sharing.',
+'学生处办公室（A201）':'Student Office (A201)','（待签署）':'(to be signed)','————（未选择处分类型）':'———— (no penalty type selected)','（以下无正文）':'— End of Document —','签发日期：':'Date of Issue: '
+};
+var PHS={
+'ULC 2026 学年秋季学期':'e.g. ULC 2026 Autumn Semester','如：课堂使用手机（用于生成标题）':'e.g. Classroom use of mobile phones','日常管理 · 课堂纪律':'Daily Management · Classroom Discipline','关于××的处理决定':'Decision on …','GUIS-ULC 学生处':'GUIS-ULC Student Office','GUIS-ULC Student Office':'GUIS-ULC Student Office','学生处':'Student Office','ULC-SA':'ULC-SA','GUIS':'GUIS','相关学生及家长':'The student and parents concerned',
+'时间、地点、行为、证据……':'Time, place, conduct, evidence…','第 3 节':'Period 3','B305 教室':'Room B305','处理结论……':'Outcome…','姓名':'Name','G10-A 班':'Class G10-A','需说明 / 核实的事项……':'Matters to be explained or verified…','2026-10-22 09:00':'2026-10-22 09:00','学生处办公室（A201）':'Student Office (A201)','未按时到校的后果……':'Consequences…','违纪行为、证据……':'Conduct, evidence…','处分措施细节……':'Details of the measures…','如：公示期满后 / 2026-10-28':'e.g. after the publicity period / 2026-10-28','公告正文内容……':'Bulletin content…','如：2026 学年“优秀学生”评选结果':'e.g. 2026 “Merit Student” Selection Results','学生姓名':'Student name','如：G10-A 班':'e.g. Class G10-A','如《学生行为规范》第 8.2 条':'e.g. Student Code of Conduct, Art. 8.2','条款摘要':'Summary','附件名称':'Attachment name','如：优秀 / 通过':'e.g. Excellent / Pass','选填':'Optional','签名显示名':'Name for signature','如：学生处主任':'e.g. Director of Student Affairs','如：本决定自签发之日起生效。':'e.g. This decision takes effect from the date of issue.','申诉期限、受理机构……':'Appeal deadline, receiving body…','10:15':'10:15','English':'English'
+};
+function tr(s){return uiLang==='en'?(LABELS[s]||s):s;}
+function trp(s){return uiLang==='en'?(PHS[s]||s):s;}
 var toastTimer=null;
 function toast(msg){var t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.classList.remove('show');},1900);}
 function download(blob,name){var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},800);}
@@ -274,13 +320,23 @@ function fmtDate(v){
 
 /* ================= 常量 ================= */
 var TYPES=[
-  {id:'decision',zh:'处理决定书'},
-  {id:'summons',zh:'约谈通知'},
-  {id:'penalty',zh:'处分通知'},
-  {id:'bulletin',zh:'公告通报'},
-  {id:'results',zh:'结果公示'}
+  {id:'decision',zh:'处理决定书',en:'Decision'},
+  {id:'summons',zh:'约谈通知',en:'Summons'},
+  {id:'penalty',zh:'处分通知',en:'Penalty Notice'},
+  {id:'bulletin',zh:'公告通报',en:'Bulletin'},
+  {id:'results',zh:'结果公示',en:'Results Notice'}
 ];
 var TYPE_MAP={};TYPES.forEach(function(t){TYPE_MAP[t.id]=t;});
+function typeName(t){var T=TYPE_MAP[t]||TYPES[0];return uiLang==='en'?(T.en||T.zh):T.zh;}
+var TITLE_SUGGEST=[
+  {zh:'学生处主任',en:'Director of Student Affairs'},
+  {zh:'学生处干事',en:'Student Affairs Officer'},
+  {zh:'年级组长',en:'Head of Year'},
+  {zh:'班主任',en:'Homeroom Teacher'},
+  {zh:'学生申诉委员会',en:'Student Appeals Committee'},
+  {zh:'审核人',en:'Reviewer'},
+  {zh:'校长',en:'Principal'}
+];
 var CN=['一','二','三','四','五','六','七','八','九','十'];
 var RM=['I','II','III','IV','V','VI','VII','VIII','IX','X'];
 var PENALTIES=[
@@ -319,30 +375,65 @@ var TITLES={
     effective:'本公示自发布之日起生效。',
     effectiveEn:'This notice takes effect upon publication.'}
 };
+/* ================= 事项场景与标题自动生成 ================= */
+var MATTERS=[
+  {zh:'课堂纪律',en:'Classroom Discipline'},
+  {zh:'课堂使用手机',en:'Classroom Use of Mobile Phones'},
+  {zh:'考勤与迟到',en:'Attendance and Tardiness'},
+  {zh:'考试纪律',en:'Examination Discipline'},
+  {zh:'宿舍管理',en:'Dormitory Management'},
+  {zh:'校园安全',en:'Campus Safety'},
+  {zh:'欺凌事件',en:'Bullying Incidents'},
+  {zh:'财物损坏',en:'Property Damage'},
+  {zh:'仪容仪表',en:'Dress and Appearance'},
+  {zh:'学术诚信',en:'Academic Integrity'}
+];
+function cleanSeg(t){return String(t||'').trim().replace(/[\s。；;，,、.]+$/,'');}
+function genTitleZh(s){
+  var E=cleanSeg(s.doc.event),M=cleanSeg(s.doc.matter),t=s.type;
+  if(!E&&!M)return (TITLES[t]||TITLES.decision).zh;
+  var A=E&&M?(E+M):(E||M);
+  if(t==='results')return A+'结果公示';
+  var tail={decision:'问题的处理决定',summons:'问题的约谈通知',penalty:'问题的处分通知',bulletin:'情况的通报'}[t]||'问题的处理决定';
+  return '关于'+A+tail;
+}
+function genTitleEn(s){
+  var E=cleanSeg(s.doc.eventEn||s.doc.event),M=cleanSeg(s.doc.matterEn||s.doc.matter),t=s.type;
+  var head={decision:'DECISION',summons:'SUMMONS',penalty:'PENALTY NOTICE',bulletin:'BULLETIN',results:'NOTICE OF RESULTS'}[t]||'DECISION';
+  if(!E&&!M)return (TITLES[t]||TITLES.decision).en;
+  if(E&&M)return head+' REGARDING '+M.toUpperCase()+' DURING '+E.toUpperCase();
+  if(M)return head+' REGARDING '+M.toUpperCase();
+  return head+' REGARDING '+E.toUpperCase();
+}
+function autoTitle(s){
+  if(s.doc.titleCustom)return;
+  s.doc.title=genTitleZh(s);
+  s.doc.titleEn=genTitleEn(s);
+}
 var KEY_DRAFTS='officialdoc.drafts.v1';
-var KEY_CUR='officialdoc.current.v2';
+var KEY_CUR='officialdoc.current.v3';
 var KEY_SEQ='officialdoc.seq.v1';
 var storedSeq=0;try{storedSeq=parseInt(localStorage.getItem(KEY_SEQ)||'0',10)||0;}catch(e){}
 
 /* ================= 状态 ================= */
 function blank(){
   var t=nowCST();
-  return {type:'decision',lang:'zh',
-    org:{name:'GUIS-ULC 学生处',nameEn:'GUIS-ULC Student Office',dept:'学生处',prefix:'ULC-SA',abbr:'GUIS'},
+  return {type:'decision',lang:'en',
+    org:{name:'GUIS-ULC 学生处',nameEn:'GUIS-ULC Student Office',dept:'学生处',deptEn:'Student Office',prefix:'ULC-SA',abbr:'GUIS'},
     meta:{no:'',date:t.d,time:t.t,cls:'public',from:'',to:''},
-    doc:{event:'',eventEn:'',session:'',sessionEn:'',title:'',titleEn:'',
-      facts:'',factsEn:'',incTime:'',incSession:'',incPlace:'',
+    doc:{event:'',eventEn:'',matter:'',matterEn:'',session:'',sessionEn:'',title:'',titleEn:'',titleCustom:false,
+      facts:'',factsEn:'',incTime:'',incSession:'',incSessionEn:'',incPlace:'',incPlaceEn:'',
       decision:'',decisionEn:'',
-      summoned:'',summonedEn:'',summonedRole:'',summonedNo:'',reason:'',reasonEn:'',appearWhen:'',appearWhere:'',consequence:'',consequenceEn:'',
-      infringement:'',infringementEn:'',penaltyTypes:[],penaltyDetail:'',penaltyDetailEn:'',execDeadline:'',
+      summoned:'',summonedEn:'',summonedRole:'',summonedRoleEn:'',summonedNo:'',reason:'',reasonEn:'',appearWhen:'',appearWhere:'',appearWhereEn:'',consequence:'',consequenceEn:'',
+      infringement:'',infringementEn:'',penaltyTypes:[],penaltyDetail:'',penaltyDetailEn:'',execDeadline:'',execDeadlineEn:'',
       body:'',bodyEn:'',
       resultCategory:'',resultCategoryEn:'',
       effective:'',effectiveEn:'',appeal:'',appealEn:''},
-    parties:[{name:'',nameEn:'',role:'',no:''}],
-    regs:[{code:'',desc:'',descEn:''}],
-    officials:[{name:'',nameEn:'',title:'学生处主任'},{name:'',nameEn:'',title:'年级组长'},{name:'',nameEn:'',title:'学生处干事'}],
+    parties:[{name:'',nameEn:'',role:'',roleEn:'',no:''}],
+    regs:[{code:'',codeEn:'',desc:'',descEn:''}],
+    officials:[{name:'',nameEn:'',title:'学生处主任',titleEn:'Director of Student Affairs'},{name:'',nameEn:'',title:'年级组长',titleEn:'Head of Year'},{name:'',nameEn:'',title:'学生处干事',titleEn:'Student Affairs Officer'}],
     attachments:[''],
-    resultRows:[{rank:'1',name:'',nameEn:'',result:'',remark:''},{rank:'2',name:'',nameEn:'',result:'',remark:''},{rank:'3',name:'',nameEn:'',result:'',remark:''}]};
+    resultRows:[{rank:'1',name:'',nameEn:'',result:'',resultEn:'',remark:'',remarkEn:''},{rank:'2',name:'',nameEn:'',result:'',resultEn:'',remark:'',remarkEn:''},{rank:'3',name:'',nameEn:'',result:'',resultEn:'',remark:'',remarkEn:''}]};
 }
 function example(){
   var s=blank();
@@ -351,33 +442,34 @@ function example(){
   s.meta.from='GUIS-ULC 学生处';s.meta.fromEn='The Student Office';
   s.meta.to='G10-A 班李思远同学及家长';s.meta.toEn='Li Siyuan (G10-A) and Parents';
   s.doc.event='ULC 2026 学年秋季学期';s.doc.eventEn='ULC 2026 Autumn Semester';
+  s.doc.matter='课堂使用电子设备';s.doc.matterEn='Classroom Use of Electronic Devices';
   s.doc.session='日常管理 · 课堂纪律';s.doc.sessionEn='Daily Management · Classroom Discipline';
-  s.doc.title='关于 G10-A 班李思远同学课堂使用电子设备的处理决定';s.doc.titleEn='DECISION ON CLASSROOM USE OF AN ELECTRONIC DEVICE BY LI SIYUAN (G10-A)';
+  autoTitle(s);
   s.doc.facts='2026 年 10 月 15 日上午第 3 节数学课，G10-A 班李思远同学在课堂上使用手机，任课教师当场提醒后，该生再次使用。任课教师随即将情况报告学生处。\n学生处核实了课堂记录与任课教师的情况说明，并约谈了该生，其对上述事实无异议。';
   s.doc.factsEn='During Period 3 Mathematics on the morning of 15 October 2026, Li Siyuan of Class G10-A used a mobile phone in class, and used it again after being reminded by the teacher. The teacher reported the incident to the Student Office.\nThe Student Office verified the class record and the teacher’s report, and interviewed the student, who raised no objection to the above facts.';
-  s.doc.incTime='10:15';s.doc.incSession='第 3 节';s.doc.incPlace='B305 教室';
+  s.doc.incTime='10:15';s.doc.incSession='第 3 节';s.doc.incSessionEn='Period 3';s.doc.incPlace='B305 教室';s.doc.incPlaceEn='Room B305';
   s.doc.decision='一、给予李思远同学书面警告一次，计入本学期操行评定；\n二、请班主任于一周内与该生及家长进行一次面谈，并在学生处备案；\n三、若本学期内再次发生同类违纪行为，将按《学生行为规范》升级处理。';
   s.doc.decisionEn='1. A written warning is issued to Li Siyuan and recorded in the conduct assessment for this semester;\n2. The homeroom teacher is to hold a meeting with the student and parents within one week and file a record with the Student Office;\n3. Any repeat of similar misconduct this semester will be dealt with more severely under the Student Code of Conduct.';
   s.doc.effective='本决定自签发之日起生效。';
   s.doc.effectiveEn='This decision takes effect from the date of issue.';
   s.doc.appeal='如对本决定有异议，学生本人或家长可在公布后 5 个工作日内，向学生申诉委员会提交书面申诉，逾期不予受理。';
   s.doc.appealEn='Should the student or the parents object to this decision, a written appeal may be submitted to the Student Appeals Committee within 5 working days of publication, failing which the right to appeal lapses.';
-  s.parties=[{name:'李思远',nameEn:'LI Siyuan',role:'G10-A 班',no:''}];
-  s.regs=[{code:'《GUIS-ULC 学生行为规范（2026 修订）》第 8.2 条',desc:'课堂上未经教师许可，学生不得使用手机及其他电子设备；经提醒仍不改正的，按违纪处理。',descEn:'Students may not use mobile phones or other electronic devices in class without the teacher’s permission; failure to correct the behaviour after a reminder is dealt with as misconduct.'}];
+  s.parties=[{name:'李思远',nameEn:'LI Siyuan',role:'G10-A 班',roleEn:'Class G10-A',no:''}];
+  s.regs=[{code:'《GUIS-ULC 学生行为规范（2026 修订）》第 8.2 条',codeEn:'GUIS-ULC Student Code of Conduct (2026 Rev.), Art. 8.2',desc:'课堂上未经教师许可，学生不得使用手机及其他电子设备；经提醒仍不改正的，按违纪处理。',descEn:'Students may not use mobile phones or other electronic devices in class without the teacher’s permission; failure to correct the behaviour after a reminder is dealt with as misconduct.'}];
   s.officials=[
-    {name:'陈明',nameEn:'CHEN Ming',title:'学生处主任'},
-    {name:'Emily Carter',nameEn:'Emily Carter',title:'年级组长'},
-    {name:'周敏',nameEn:'ZHOU Min',title:'学生处干事'}];
+    {name:'陈明',nameEn:'CHEN Ming',title:'学生处主任',titleEn:'Director of Student Affairs'},
+    {name:'Emily Carter',nameEn:'Emily Carter',title:'年级组长',titleEn:'Head of Year'},
+    {name:'周敏',nameEn:'ZHOU Min',title:'学生处干事',titleEn:'Student Affairs Officer'}];
   return s;
 }
 function applyTypeDefaults(s){
-  var T=TITLES[s.type]||TITLES.decision,d=s.doc;
-  if(!s.meta.from)s.meta.from=T.from;
-  if(!s.meta.to)s.meta.to=T.to;
-  if(!d.title)d.title=T.zh;
-  if(!d.appeal)d.appeal=T.appeal;
+  var T=TITLES[s.type]||TITLES.decision,d=s.doc,en=s.lang==='en';
+  if(!s.meta.from)s.meta.from=en?(T.fromEn||T.from):T.from;
+  if(!s.meta.to)s.meta.to=en?(T.toEn||T.to):T.to;
+  autoTitle(s);
+  if(!d.appeal)d.appeal=en?(T.appealEn||''):T.appeal;
   if(!d.appealEn)d.appealEn=T.appealEn||'';
-  if(!d.effective)d.effective=T.effective;
+  if(!d.effective)d.effective=en?(T.effectiveEn||''):T.effective;
   if(!d.effectiveEn)d.effectiveEn=T.effectiveEn||'';
 }
 function autoNo(){
@@ -389,92 +481,121 @@ function autoNo(){
 }
 
 /* ================= 表单构建 ================= */
+function inp(bind,val,ph,chip,isEn,list){
+  return '<div class="in-row">'+(chip?'<span class="lang-chip">'+chip+'</span>':'')
+    +'<input type="text" class="'+(isEn?'en-in':'')+'"'+(list?' list="'+list+'"':'')+' data-bind="'+bind+'" placeholder="'+esc(trp(ph)||'')+'" value="'+esc(val==null?'':val)+'"></div>';
+}
+function ta(bind,rows,ph,chip,isEn){
+  return '<div class="in-row">'+(chip?'<span class="lang-chip">'+chip+'</span>':'')
+    +'<textarea rows="'+rows+'" class="'+(isEn?'en-in':'')+'" data-bind="'+bind+'" placeholder="'+esc(trp(ph)||'')+'">'+esc(gp(bind))+'</textarea></div>';
+}
+/* 按文档语言渲染输入：en→英文框；zh→中文框；bi→中文框+英文框（堆叠） */
+function langInp(bindZ,bindE,ph,listZ,listE){
+  var L=state.lang;
+  if(L==='en')return inp(bindE,gp(bindE),ph,'',true,listE);
+  if(L==='zh')return inp(bindZ,gp(bindZ),ph,'',false,listZ);
+  return inp(bindZ,gp(bindZ),ph,'中文',false,listZ)+inp(bindE,gp(bindE),ph,'EN',true,listE);
+}
+function langTa(bindZ,bindE,rows,ph){
+  var L=state.lang;
+  if(L==='en')return ta(bindE,rows,ph,'',true);
+  if(L==='zh')return ta(bindZ,rows,ph,'');
+  return ta(bindZ,rows,ph,'中文')+ta(bindE,rows,ph,'EN',true);
+}
 function fInp(label,bind,ph,withEn){
-  var en=withEn!==false&&state.lang!=='zh';
-  return '<label class="fld"><span class="fld-l">'+esc(label)+(en?' <span class="en-h">EN</span>':'')+'</span>'
-    +'<input type="text" data-bind="'+bind+'" placeholder="'+esc(ph||'')+'" value="'+esc(gp(bind))+'">'
-    +(en?'<input type="text" class="en-in" data-bind="'+bind+'En" placeholder="English" value="'+esc(gp(bind+'En'))+'">':'')
-    +'</label>';
+  return '<div class="fld"><span class="fld-l">'+tr(label)+'</span>'
+    +(withEn===false?inp(bind,gp(bind),ph,''):langInp(bind,bind+'En',ph))+'</div>';
 }
 function fArea(label,bind,rows,ph,withEn){
-  var en=withEn!==false&&state.lang!=='zh';
-  return '<label class="fld"><span class="fld-l">'+esc(label)+(en?' <span class="en-h">EN</span>':'')+'</span>'
-    +'<textarea rows="'+rows+'" data-bind="'+bind+'" placeholder="'+esc(ph||'')+'">'+esc(gp(bind))+'</textarea>'
-    +(en?'<textarea rows="2" class="en-in" data-bind="'+bind+'En" placeholder="English">'+esc(gp(bind+'En'))+'</textarea>':'')
-    +'</label>';
+  return '<div class="fld"><span class="fld-l">'+tr(label)+'</span>'
+    +(withEn===false?ta(bind,rows,ph,''):langTa(bind,bind+'En',rows,ph))+'</div>';
 }
 function fGrid(inner){return '<div class="grid2">'+inner+'</div>';}
-function subH(t){return '<div class="sub-h">'+esc(t)+'</div>';}
+function subH(t){return '<div class="sub-h">'+tr(t)+'</div>';}
+function titleField(){
+  var s=state,en=s.lang==='en',bi=s.lang==='bi';
+  var h='<div class="sub-h">'+tr('文件标题')+'<span class="auto-tag">'+(s.doc.titleCustom?tr('手动改写'):tr('自动生成'))+'</span></div>';
+  if(s.doc.titleCustom){
+    h+='<div class="title-actions"><span class="hint-inline">'+tr('手动模式下不随活动 / 事项自动更新')+'</span>'
+      +'<button class="mini-btn" data-act="title-auto">'+tr('恢复自动生成')+'</button></div>';
+    if(en)h+=inp('doc.titleEn',s.doc.titleEn,'关于××的处理决定','',true);
+    else if(bi)h+=inp('doc.title',s.doc.title,'关于××的处理决定','中文')+inp('doc.titleEn',s.doc.titleEn,'关于××的处理决定','EN',true);
+    else h+=inp('doc.title',s.doc.title,'关于××的处理决定','');
+  }else{
+    if(en){
+      h+='<div class="title-preview" id="autoTitleDisp">'+esc(s.doc.titleEn||'')+'</div>';
+      h+='<div class="title-preview-en title-sub-zh" id="autoTitleDispZh">'+esc(s.doc.title||'')+'</div>';
+    }else{
+      h+='<div class="title-preview" id="autoTitleDisp">'+esc(s.doc.title||'')+'</div>';
+      if(s.lang!=='zh')h+='<div class="title-preview-en" id="autoTitleDispEn">'+esc(s.doc.titleEn||'')+'</div>';
+    }
+    h+='<div class="title-actions"><span class="hint-inline">'+tr('由「活动名称 + 事项场景」自动生成')+'</span>'
+      +'<button class="mini-btn" data-act="title-edit">'+tr('手动改写')+'</button></div>';
+  }
+  return h;
+}
 
 function rowParty(it,i){
-  var en=state.lang!=='zh';
   return '<div class="row r2">'
-    +'<div class="fld"><span class="fld-l">姓名</span><input type="text" data-bind="parties.'+i+'.name" value="'+esc(it.name)+'" placeholder="学生姓名">'
-    +(en?'<input type="text" class="en-in" data-bind="parties.'+i+'.nameEn" value="'+esc(it.nameEn)+'" placeholder="English">':'')+'</div>'
-    +'<div class="fld"><span class="fld-l">班级 / 年级</span><input type="text" data-bind="parties.'+i+'.role" value="'+esc(it.role)+'" placeholder="如：G10-A 班"></div>'
-    +'<button class="del" data-act="del" data-list="parties" data-i="'+i+'" title="删除本行">×</button></div>';
+    +'<div class="fld"><span class="fld-l">'+tr('姓名')+'</span>'+langInp('parties.'+i+'.name','parties.'+i+'.nameEn','学生姓名')+'</div>'
+    +'<div class="fld"><span class="fld-l">'+tr('班级 / 年级')+'</span>'+langInp('parties.'+i+'.role','parties.'+i+'.roleEn','如：G10-A 班')+'</div>'
+    +'<button class="del" data-act="del" data-list="parties" data-i="'+i+'" title="'+tr('删除本行')+'">×</button></div>';
 }
 function rowReg(it,i){
-  var en=state.lang!=='zh';
   return '<div class="row r2">'
-    +'<div class="fld"><span class="fld-l">条款编号</span><input type="text" data-bind="regs.'+i+'.code" value="'+esc(it.code)+'" placeholder="如《学生行为规范》第 8.2 条"></div>'
-    +'<div class="fld"><span class="fld-l">条款内容</span><input type="text" data-bind="regs.'+i+'.desc" value="'+esc(it.desc)+'" placeholder="条款摘要">'
-    +(en?'<input type="text" class="en-in" data-bind="regs.'+i+'.descEn" value="'+esc(it.descEn)+'" placeholder="English">':'')+'</div>'
-    +'<button class="del" data-act="del" data-list="regs" data-i="'+i+'" title="删除本行">×</button></div>';
+    +'<div class="fld"><span class="fld-l">'+tr('条款编号')+'</span>'+langInp('regs.'+i+'.code','regs.'+i+'.codeEn','如《学生行为规范》第 8.2 条')+'</div>'
+    +'<div class="fld"><span class="fld-l">'+tr('条款内容')+'</span>'+langInp('regs.'+i+'.desc','regs.'+i+'.descEn','条款摘要')+'</div>'
+    +'<button class="del" data-act="del" data-list="regs" data-i="'+i+'" title="'+tr('删除本行')+'">×</button></div>';
 }
 function rowOfficial(it,i){
-  var en=state.lang!=='zh';
   return '<div class="row r2">'
-    +'<div class="fld"><span class="fld-l">姓名</span><input type="text" data-bind="officials.'+i+'.name" value="'+esc(it.name)+'" placeholder="签名显示名">'
-    +(en?'<input type="text" class="en-in" data-bind="officials.'+i+'.nameEn" value="'+esc(it.nameEn)+'" placeholder="English">':'')+'</div>'
-    +'<div class="fld"><span class="fld-l">职务</span><input type="text" data-bind="officials.'+i+'.title" value="'+esc(it.title)+'" placeholder="如：学生处主任" list="titleList"></div>'
-    +'<button class="del" data-act="del" data-list="officials" data-i="'+i+'" title="删除本行">×</button></div>';
+    +'<div class="fld"><span class="fld-l">'+tr('姓名')+'</span>'+langInp('officials.'+i+'.name','officials.'+i+'.nameEn','签名显示名')+'</div>'
+    +'<div class="fld"><span class="fld-l">'+tr('职务')+'</span>'+langInp('officials.'+i+'.title','officials.'+i+'.titleEn','如：学生处主任','titleList','titleListEn')+'</div>'
+    +'<button class="del" data-act="del" data-list="officials" data-i="'+i+'" title="'+tr('删除本行')+'">×</button></div>';
 }
 function rowResult(it,i){
-  var en=state.lang!=='zh';
   return '<div class="row r4">'
-    +'<div class="fld"><span class="fld-l">序号</span><input type="text" data-bind="resultRows.'+i+'.rank" value="'+esc(it.rank)+'"></div>'
-    +'<div class="fld"><span class="fld-l">姓名 / 班级</span><input type="text" data-bind="resultRows.'+i+'.name" value="'+esc(it.name)+'">'
-    +(en?'<input type="text" class="en-in" data-bind="resultRows.'+i+'.nameEn" value="'+esc(it.nameEn)+'" placeholder="English">':'')+'</div>'
-    +'<div class="fld"><span class="fld-l">结果</span><input type="text" data-bind="resultRows.'+i+'.result" value="'+esc(it.result)+'" placeholder="如：优秀 / 通过"></div>'
-    +'<div class="fld"><span class="fld-l">备注</span><input type="text" data-bind="resultRows.'+i+'.remark" value="'+esc(it.remark)+'" placeholder="选填"></div>'
-    +'<button class="del" data-act="del" data-list="resultRows" data-i="'+i+'" title="删除本行">×</button></div>';
+    +'<div class="fld"><span class="fld-l">'+tr('序号')+'</span><input type="text" data-bind="resultRows.'+i+'.rank" value="'+esc(it.rank)+'"></div>'
+    +'<div class="fld"><span class="fld-l">'+tr('姓名 / 班级')+'</span>'+langInp('resultRows.'+i+'.name','resultRows.'+i+'.nameEn','English')+'</div>'
+    +'<div class="fld"><span class="fld-l">'+tr('结果')+'</span>'+langInp('resultRows.'+i+'.result','resultRows.'+i+'.resultEn','如：优秀 / 通过')+'</div>'
+    +'<div class="fld"><span class="fld-l">'+tr('备注')+'</span>'+langInp('resultRows.'+i+'.remark','resultRows.'+i+'.remarkEn','选填')+'</div>'
+    +'<button class="del" data-act="del" data-list="resultRows" data-i="'+i+'" title="'+tr('删除本行')+'">×</button></div>';
 }
 function rowAttach(it,i){
   return '<div class="row r1">'
-    +'<div class="fld"><span class="fld-l">附件 '+(i+1)+'</span><input type="text" data-bind="attachments.'+i+'" value="'+esc(it)+'" placeholder="附件名称"></div>'
-    +'<button class="del" data-act="del" data-list="attachments" data-i="'+i+'" title="删除本行">×</button></div>';
+    +'<div class="fld"><span class="fld-l">'+tr('附件')+' '+(i+1)+'</span><input type="text" data-bind="attachments.'+i+'" value="'+esc(it)+'" placeholder="'+esc(trp('附件名称'))+'"></div>'
+    +'<button class="del" data-act="del" data-list="attachments" data-i="'+i+'" title="'+tr('删除本行')+'">×</button></div>';
 }
 
 function listCard(key,title,hint,rowFn){
-  var h='<div class="card"><div class="card-h"><span class="card-t">'+title+'</span><span class="card-hint">'+hint+'</span></div><div class="card-b"><div class="rows">';
+  var h='<div class="card"><div class="card-h"><span class="card-t">'+tr(title)+'</span><span class="card-hint">'+tr(hint)+'</span></div><div class="card-b"><div class="rows">';
   arr(key).forEach(function(it,i){h+=rowFn(it,i);});
-  return h+'</div><button class="add-btn" data-act="add" data-list="'+key+'">＋ 添加一行</button></div></div>';
+  return h+'</div><button class="add-btn" data-act="add" data-list="'+key+'">'+tr('＋ 添加一行')+'</button></div></div>';
 }
 
 function bodyForm(){
-  var s=state,d=s.doc,h='<div class="card"><div class="card-h"><span class="card-t">正文内容</span><span class="card-hint">'+TYPE_MAP[s.type].zh+'</span></div><div class="card-b">';
+  var s=state,d=s.doc,h='<div class="card"><div class="card-h"><span class="card-t">'+tr('正文内容')+'</span><span class="card-hint">'+typeName(s.type)+'</span></div><div class="card-b">';
   if(s.type==='decision'){
     h+=fArea('事实经过','doc.facts',4,'时间、地点、行为、证据……');
     h+=subH('事发信息');
-    h+=fGrid(fInp('发生时间','doc.incTime','10:15',false)+fInp('节次','doc.incSession','第 3 节',false));
-    h+=fInp('地点','doc.incPlace','B305 教室',false);
+    h+=fGrid(fInp('发生时间','doc.incTime','10:15',false)+fInp('节次','doc.incSession','第 3 节'));
+    h+=fInp('地点','doc.incPlace','B305 教室');
     h+=fArea('决定内容','doc.decision',4,'处理结论……');
   }else if(s.type==='summons'){
     h+=fGrid(fInp('被约谈人','doc.summoned','姓名')+fInp('班级 / 年级','doc.summonedRole','G10-A 班'));
     h+=fArea('约谈事由','doc.reason',3,'需说明 / 核实的事项……');
     h+=subH('到校要求');
-    h+=fGrid(fInp('到校时间','doc.appearWhen','2026-10-22 09:00',false)+fInp('谈话地点','doc.appearWhere','学生处办公室（A201）',false));
+    h+=fGrid(fInp('到校时间','doc.appearWhen','2026-10-22 09:00',false)+fInp('谈话地点','doc.appearWhere','学生处办公室（A201）'));
     h+=fArea('未按时到校的后果','doc.consequence',3,'未按时到校的后果……');
   }else if(s.type==='penalty'){
     h+=fArea('违纪事实','doc.infringement',4,'违纪行为、证据……');
     h+=subH('处分类型（多选）');
     h+='<div class="pen-pills">'+PENALTIES.map(function(p){
       var on=(d.penaltyTypes||[]).indexOf(p.v)>=0;
-      return '<button type="button" class="pen-pill'+(on?' on':'')+'" data-act="pen" data-v="'+p.v+'">'+p.zh+'</button>';
+      return '<button type="button" class="pen-pill'+(on?' on':'')+'" data-act="pen" data-v="'+p.v+'">'+(s.lang==='en'?p.en:p.zh)+'</button>';
     }).join('')+'</div>';
     h+=fArea('处分具体内容','doc.penaltyDetail',3,'处分措施细节……');
-    h+=fInp('执行期限','doc.execDeadline','如：公示期满后 / 2026-10-28',false);
+    h+=fInp('执行期限','doc.execDeadline','如：公示期满后 / 2026-10-28');
   }else if(s.type==='bulletin'){
     h+=fArea('正文','doc.body',6,'公告正文内容……');
   }else if(s.type==='results'){
@@ -485,24 +606,25 @@ function bodyForm(){
 
 function buildForm(){
   var s=state,h='';
-  h+='<details class="card"><summary class="card-h"><span class="card-t">机构设置</span><span class="card-hint">信头 / 徽标 / 编号前缀</span></summary><div class="card-b">'
+  h+='<details class="card"><summary class="card-h"><span class="card-t">'+tr('机构设置')+'</span><span class="card-hint">'+tr('信头 / 徽标 / 编号前缀')+'</span></summary><div class="card-b">'
     +fInp('机构名称','org.name','GUIS-ULC 学生处',false)
     +fInp('机构名称（英文）','org.nameEn','GUIS-ULC Student Office',false)
     +fGrid(fInp('发文部门','org.dept','学生处',false)+fInp('编号前缀','org.prefix','ULC-SA',false))
     +fInp('徽标缩写','org.abbr','GUIS',false)
     +'</div></details>';
-  h+='<div class="card"><div class="card-h"><span class="card-t">文件信息</span><span class="card-hint">编号 / 日期 / 密级 / 收发</span></div><div class="card-b">'
-    +'<div class="fld"><span class="fld-l">文件编号</span><div class="no-row"><input type="text" data-bind="meta.no" value="'+esc(s.meta.no)+'"><button class="mini-btn" data-act="autono" title="按前缀自动生成">自动生成</button></div></div>'
-    +'<div class="fld"><span class="fld-l">密级</span><div class="seg"><button data-act="cls" data-v="public" class="'+(s.meta.cls==='public'?'on':'')+'">公开</button><button data-act="cls" data-v="internal" class="'+(s.meta.cls==='internal'?'on':'')+'">内部</button></div></div>'
-    +fGrid('<label class="fld"><span class="fld-l">签发日期</span><input type="date" data-bind="meta.date" value="'+esc(s.meta.date)+'"></label>'
-      +'<label class="fld"><span class="fld-l">签发时间（UTC+8）</span><input type="time" data-bind="meta.time" value="'+esc(s.meta.time)+'"></label>')
+  h+='<div class="card"><div class="card-h"><span class="card-t">'+tr('文件信息')+'</span><span class="card-hint">'+tr('编号 / 日期 / 密级 / 收发')+'</span></div><div class="card-b">'
+    +'<div class="fld"><span class="fld-l">'+tr('文件编号')+'</span><div class="no-row"><input type="text" data-bind="meta.no" value="'+esc(s.meta.no)+'"><button class="mini-btn" data-act="autono" title="'+tr('按前缀自动生成')+'">'+tr('自动生成')+'</button></div></div>'
+    +'<div class="fld"><span class="fld-l">'+tr('密级')+'</span><div class="seg"><button data-act="cls" data-v="public" class="'+(s.meta.cls==='public'?'on':'')+'">'+tr('公开')+'</button><button data-act="cls" data-v="internal" class="'+(s.meta.cls==='internal'?'on':'')+'">'+tr('内部')+'</button></div></div>'
+    +fGrid('<div class="fld"><span class="fld-l">'+tr('签发日期')+'</span><input type="date" data-bind="meta.date" value="'+esc(s.meta.date)+'"></div>'
+      +'<div class="fld"><span class="fld-l">'+tr('签发时间（UTC+8）')+'</span><input type="time" data-bind="meta.time" value="'+esc(s.meta.time)+'"></div>')
     +fInp('自（From）','meta.from','GUIS-ULC 学生处')
     +fInp('至（To）','meta.to','相关学生及家长')
     +'</div></div>';
-  h+='<div class="card"><div class="card-h"><span class="card-t">活动与标题</span><span class="card-hint">事件 / 事项 / 文件标题</span></div><div class="card-b">'
+  h+='<div class="card"><div class="card-h"><span class="card-t">'+tr('活动与标题')+'</span><span class="card-hint">'+tr('事件 / 事项 / 标题自动生成')+'</span></div><div class="card-b">'
     +fInp('活动 / 事件名称','doc.event','ULC 2026 学年秋季学期')
-    +fInp('事项 / 场景','doc.session','日常管理 · 课堂纪律')
-    +fInp('文件标题','doc.title','关于××的处理决定')
+    +'<div class="fld"><span class="fld-l">'+tr('事项 / 场景')+'</span>'+langInp('doc.matter','doc.matterEn','如：课堂使用手机（用于生成标题）','matterList','matterListEn')+'</div>'
+    +fInp('环节 / 场次','doc.session','日常管理 · 课堂纪律')
+    +titleField()
     +'</div></div>';
   h+=bodyForm();
   if(s.type==='decision'||s.type==='penalty')h+=listCard('parties','相关学生','涉及的学生 / 班级',rowParty);
@@ -510,12 +632,15 @@ function buildForm(){
   if(s.type==='bulletin')h+=listCard('attachments','附件','随文发布的附件',rowAttach);
   if(s.type==='results')h+=listCard('resultRows','公示名单','按顺序填写',rowResult);
   h+=listCard('officials','签发官员','显示在文件末尾签名区',rowOfficial);
-  h+='<datalist id="titleList"><option>学生处主任</option><option>学生处干事</option><option>年级组长</option><option>班主任</option><option>学生申诉委员会</option><option>审核人</option><option>校长</option></datalist>';
-  h+='<div class="card"><div class="card-h"><span class="card-t">生效与附注</span><span class="card-hint">申诉权利 / 其他事项</span></div><div class="card-b">'
+  h+='<datalist id="titleList">'+TITLE_SUGGEST.map(function(x){return '<option>'+esc(x.zh)+'</option>';}).join('')+'</datalist>';
+  h+='<datalist id="titleListEn">'+TITLE_SUGGEST.map(function(x){return '<option>'+esc(x.en)+'</option>';}).join('')+'</datalist>';
+  h+='<datalist id="matterList">'+MATTERS.map(function(m){return '<option>'+esc(m.zh)+'</option>';}).join('')+'</datalist>';
+  h+='<datalist id="matterListEn">'+MATTERS.map(function(m){return '<option>'+esc(m.en)+'</option>';}).join('')+'</datalist>';
+  h+='<div class="card"><div class="card-h"><span class="card-t">'+tr('生效与附注')+'</span><span class="card-hint">'+tr('申诉权利 / 其他事项')+'</span></div><div class="card-b">'
     +fArea('生效说明','doc.effective',2,'如：本决定自签发之日起生效。')
     +fArea('附注 / 申诉权利','doc.appeal',3,'申诉期限、受理机构等……')
     +'</div></div>';
-  h+='<div class="editor-tip">所有内容仅保存于本机浏览器；「导出文档」可生成独立 HTML 用于打印或分享。</div>';
+  h+='<div class="editor-tip">'+tr('所有内容仅保存于本机浏览器；「导出文档」可生成独立 HTML 用于打印或分享。')+'</div>';
   return h;
 }
 function renderForm(){var st=editor.scrollTop;editor.innerHTML=buildForm();editor.scrollTop=st;}
@@ -532,17 +657,22 @@ function emblemSVG(abbr){
     +'</svg>';
 }
 function headHTML(){
-  var s=state;
+  var s=state,L=s.lang;
   var abbr=(s.org.abbr||'').trim();
   if(!abbr){
     var words=(s.org.nameEn||'').replace(/[^A-Za-z ]/g,' ').trim().split(/\s+/).filter(Boolean);
     abbr=words.length?(words[0].length<=5?words[0].toUpperCase():words.map(function(w){return w[0];}).join('').toUpperCase()):(s.org.name||'官').slice(0,2);
   }
+  var orgMain,orgSub='';
+  if(L==='en'){orgMain=s.org.nameEn||s.org.name;if(s.org.name&&s.org.nameEn&&s.org.name!==s.org.nameEn)orgSub='<div class="org-name-zhsub">'+esc(s.org.name)+'</div>';}
+  else if(L==='zh'){orgMain=s.org.name;}
+  else{orgMain=s.org.name;orgSub=s.org.nameEn?'<div class="org-name-en">'+esc(s.org.nameEn)+'</div>':'';}
+  var deptMain=L==='en'?(s.org.deptEn||s.org.dept):s.org.dept;
+  var deptSub=(L==='bi'&&s.org.deptEn&&s.org.deptEn!==deptMain)?'<span class="dept-en">'+esc(s.org.deptEn)+'</span>':'';
   return '<div class="doc-head"><div class="lh">'+emblemSVG(abbr)
-    +'<div class="lh-t"><div class="org-name">'+esc(s.org.name)+'</div>'
-    +(s.lang!=='zh'?'<div class="org-name-en">'+esc(s.org.nameEn)+'</div>':'')
-    +'<div class="org-dept">'+esc(s.org.dept)+'<span class="sep">·</span>'+(s.lang==='en'?'OFFICIAL DOCUMENT':'官方文件')+'</div></div></div>'
-    +'<div class="doc-no-box"><div class="k">'+(s.lang==='en'?'DOCUMENT NO.':'文件编号')+'</div><div class="v">'+esc(s.meta.no||'————')+'</div></div></div>';
+    +'<div class="lh-t"><div class="org-name">'+esc(orgMain)+'</div>'+orgSub
+    +'<div class="org-dept">'+esc(deptMain)+deptSub+'<span class="sep">·</span>'+(L==='en'?'OFFICIAL DOCUMENT':'官方文件')+'</div></div></div>'
+    +'<div class="doc-no-box"><div class="k">'+(L==='en'?'DOCUMENT NO.':'文件编号')+'</div><div class="v">'+esc(s.meta.no||'————')+'</div></div></div>';
 }
 function metaHTML(){
   var s=state,L=s.lang;
@@ -553,6 +683,7 @@ function metaHTML(){
     +'<tr><td class="k">'+k('签发日期','Date of Issue')+'</td><td>'+fmtDate(s.meta.date)+'</td><td class="k">'+k('签发时间','Time of Issue')+'</td><td>'+esc(s.meta.time||'——')+' (UTC+8)</td></tr>'
     +'<tr><td class="k">'+k('自','From')+'</td><td>'+valTxt(s.meta.from,s.meta.fromEn)+'</td><td class="k">'+k('至','To')+'</td><td>'+valTxt(s.meta.to,s.meta.toEn)+'</td></tr>'
     +'<tr><td class="k">'+k('活动 / 事件','Event')+'</td><td>'+valTxt(s.doc.event,s.doc.eventEn)+'</td><td class="k">'+k('环节 / 场次','Session')+'</td><td>'+valTxt(s.doc.session,s.doc.sessionEn)+'</td></tr>'
+    +'<tr><td class="k">'+k('事项 / 场景','Matter')+'</td><td>'+valTxt(s.doc.matter,s.doc.matterEn)+'</td><td class="k">'+k('文件类型','Document Type')+'</td><td>'+esc(L==='en'?(TITLES[s.type]||TITLES.decision).en:(TITLES[s.type]||TITLES.decision).zh)+'</td></tr>'
     +'</table>';
 }
 function valTxt(v,en){
@@ -560,6 +691,16 @@ function valTxt(v,en){
   if(state.lang==='en')return esc(en||v);
   if(state.lang==='zh')return esc(v);
   return esc(v)+(en?'<div class="sub">'+esc(en)+'</div>':'');
+}
+/* 内容值按文档语言取值：en→英文（缺省回退中文）；zh→中文；bi→中文+英文副行 */
+function cv(z,e,ph){
+  ph=ph||'——';
+  var L=state.lang;
+  if(L==='en'){var v=e||z;return v?esc(v):'<span class="ph">'+ph+'</span>';}
+  if(L==='zh'){return z?esc(z):'<span class="ph">'+ph+'</span>';}
+  var h=z?esc(z):'<span class="ph">'+ph+'</span>';
+  if(e)h+='<div class="sub">'+esc(e)+'</div>';
+  return h;
 }
 function titleHTML(){
   var s=state,L=s.lang;
@@ -587,32 +728,37 @@ function p(zh,en){
   return h;
 }
 function strip(items){
-  var its=items.filter(function(x){return x[1]&&String(x[1]).trim();});
+  var its=items.filter(function(x){return (x[1]||x[2]);});
   if(!its.length)return '';
-  return '<div class="strip">'+its.map(function(x){return '<span class="item"><b>'+x[0]+'</b>'+x[1]+'</span>';}).join('')+'</div>';
+  return '<div class="strip">'+its.map(function(x){return '<span class="item"><b>'+x[0]+'</b>'+cv(x[1],x[2])+'</span>';}).join('')+'</div>';
 }
 function partiesTable(){
-  var s=state,ps=arr('parties').filter(function(x){return (x.name||'').trim()||(x.role||'').trim();});
+  var s=state,ps=arr('parties').filter(function(x){return (x.name||'').trim()||(x.nameEn||'').trim()||(x.role||'').trim()||(x.roleEn||'').trim();});
   if(!ps.length)return '<p class="doc-p ph">————</p>';
   var L=s.lang;
   var h='<table class="doc-table"><thead><tr><th style="width:10%">'+(L==='en'?'No.':'序号')+'</th><th>'+(L==='en'?'Student':'学生')+'</th><th>'+(L==='en'?'Class / Grade':'班级 / 年级')+'</th></tr></thead><tbody>';
   ps.forEach(function(x,i){
-    h+='<tr><td>'+(i+1)+'</td><td>'+esc(x.name||'——')+(s.lang!=='zh'&&x.nameEn?'<div class="sub">'+esc(x.nameEn)+'</div>':'')+'</td><td class="l">'+esc(x.role||'——')+'</td></tr>';
+    h+='<tr><td>'+(i+1)+'</td><td>'+cv(x.name,x.nameEn)+'</td><td class="l">'+cv(x.role,x.roleEn)+'</td></tr>';
   });
   return h+'</tbody></table>';
 }
 function regList(){
-  var s=state,rs=arr('regs').filter(function(x){return (x.code||'').trim()||(x.desc||'').trim();});
+  var s=state,rs=arr('regs').filter(function(x){return (x.code||'').trim()||(x.codeEn||'').trim()||(x.desc||'').trim()||(x.descEn||'').trim();});
   if(!rs.length)return '<p class="doc-p ph">————</p>';
   var h='<ul class="reg-list">';
   rs.forEach(function(x,i){
-    h+='<li><b>'+esc(x.code||'（条款 '+(i+1)+'）')+'</b>'+(x.desc?esc(x.desc):'')+(s.lang!=='zh'&&x.descEn?'<div class="sub">'+esc(x.descEn)+'</div>':'')+'</li>';
+    var codeTxt=s.lang==='en'?(x.codeEn||x.code||('Art. '+(i+1))):(x.code||('（条款 '+(i+1)+'）'));
+    var descHtml='';
+    if(s.lang==='en')descHtml=(x.descEn||x.desc)?esc(x.descEn||x.desc):'';
+    else if(s.lang==='zh')descHtml=x.desc?esc(x.desc):'';
+    else descHtml=(x.desc?esc(x.desc):'')+(x.descEn?'<div class="sub">'+esc(x.descEn)+'</div>':'');
+    h+='<li><b>'+esc(codeTxt)+'</b>'+descHtml+'</li>';
   });
   return h+'</ul>';
 }
 function penChips(){
   var sel=state.doc.penaltyTypes||[];
-  if(!sel.length)return '<p class="doc-p ph">————（未选择处分类型）</p>';
+  if(!sel.length)return '<p class="doc-p ph">'+(state.lang==='en'?'———— (no penalty type selected)':'————（未选择处分类型）')+'</p>';
   return '<div class="pen-chips">'+sel.map(function(v){
     var pt=PENALTIES.filter(function(x){return x.v===v;})[0];
     return pt?'<span class="pen-chip">'+(state.lang==='en'?pt.en:pt.zh)+'</span>':'';
@@ -621,21 +767,22 @@ function penChips(){
 function attachList(){
   var as=arr('attachments').filter(function(a){return a&&String(a).trim();});
   if(!as.length)return '<p class="doc-p ph">————</p>';
-  return '<ul class="att-list">'+as.map(function(a,i){return '<li><span class="att-no">附件 '+(i+1)+'</span>'+esc(a)+'</li>';}).join('')+'</ul>';
+  var en=state.lang==='en';
+  return '<ul class="att-list">'+as.map(function(a,i){return '<li><span class="att-no">'+(en?'Attachment ':'附件 ')+(i+1)+'</span>'+esc(a)+'</li>';}).join('')+'</ul>';
 }
 function resultsTable(){
-  var s=state,L=s.lang,rs=arr('resultRows').filter(function(r){return (r.name||'').trim()||(r.result||'').trim();});
+  var s=state,L=s.lang,rs=arr('resultRows').filter(function(r){return (r.name||'').trim()||(r.nameEn||'').trim()||(r.result||'').trim()||(r.resultEn||'').trim()||(r.remark||'').trim()||(r.remarkEn||'').trim();});
   var head='<tr><th style="width:11%">'+(L==='en'?'No.':'序号')+'</th><th>'+(L==='en'?'Name / Class':'姓名 / 班级')+'</th><th style="width:22%">'+(L==='en'?'Result':'结果')+'</th><th style="width:27%">'+(L==='en'?'Remarks':'备注')+'</th></tr>';
   if(!rs.length)return '<table class="doc-table"><thead>'+head+'</thead><tbody><tr><td colspan="4" class="ph">————</td></tr></tbody></table>';
   var b=rs.map(function(r){
-    return '<tr><td>'+esc(r.rank||'—')+'</td><td>'+esc(r.name||'——')+(s.lang!=='zh'&&r.nameEn?'<div class="sub">'+esc(r.nameEn)+'</div>':'')+'</td><td class="mono">'+esc(r.result||'——')+'</td><td class="l">'+esc(r.remark||'——')+'</td></tr>';
+    return '<tr><td>'+esc(r.rank||'—')+'</td><td>'+cv(r.name,r.nameEn)+'</td><td class="mono">'+cv(r.result,r.resultEn)+'</td><td class="l">'+cv(r.remark,r.remarkEn)+'</td></tr>';
   }).join('');
   return '<table class="doc-table"><thead>'+head+'</thead><tbody>'+b+'</tbody></table>';
 }
 function bodyDecision(){
   var d=state.doc;
   return sec(0,'事实经过','Facts of the Matter')+p(d.facts,d.factsEn)
-    +strip([[k2('发生时间','Time'),esc(d.incTime)],[k2('节次','Period'),esc(d.incSession)],[k2('地点','Location'),esc(d.incPlace)]])
+    +strip([[k2('发生时间','Time'),d.incTime],[k2('节次','Period'),d.incSession,d.incSessionEn],[k2('地点','Location'),d.incPlace,d.incPlaceEn]])
     +sec(1,'涉及学生','Students Involved')+partiesTable()
     +sec(2,'规则依据','Regulatory Basis')+regList()
     +sec(3,'决定内容','Decision')+p(d.decision,d.decisionEn)
@@ -643,9 +790,9 @@ function bodyDecision(){
 }
 function bodySummons(){
   var d=state.doc;
-  return sec(0,'被约谈人','The Person to be Met')+strip([[k2('姓名','Name'),valTxt(d.summoned,d.summonedEn)],[k2('班级 / 年级','Class / Grade'),esc(d.summonedRole)]])
+  return sec(0,'被约谈人','The Person to be Met')+strip([[k2('姓名','Name'),d.summoned,d.summonedEn],[k2('班级 / 年级','Class / Grade'),d.summonedRole,d.summonedRoleEn]])
     +sec(1,'约谈事由','Reason for the Meeting')+p(d.reason,d.reasonEn)
-    +sec(2,'到校要求','Appearance')+strip([[k2('到校时间','When'),esc(d.appearWhen)],[k2('谈话地点','Where'),esc(d.appearWhere)]])
+    +sec(2,'到校要求','Appearance')+strip([[k2('到校时间','When'),d.appearWhen],[k2('谈话地点','Where'),d.appearWhere,d.appearWhereEn]])
     +sec(3,'未按时到校的后果','Consequence of Non-Attendance')+p(d.consequence,d.consequenceEn)
     +sec(4,'附注','Additional Notes')+p(d.appeal);
 }
@@ -654,7 +801,7 @@ function bodyPenalty(){
   return sec(0,'违纪事实','The Misconduct')+p(d.infringement,d.infringementEn)
     +sec(1,'规则依据','Regulatory Basis')+regList()
     +sec(2,'处分决定','Disciplinary Action')+penChips()+p(d.penaltyDetail,d.penaltyDetailEn)
-    +sec(3,'执行与申诉','Execution and Appeal')+strip([[k2('执行期限','Deadline'),esc(d.execDeadline)]])+p(d.appeal,d.appealEn);
+    +sec(3,'执行与申诉','Execution and Appeal')+strip([[k2('执行期限','Deadline'),d.execDeadline,d.execDeadlineEn]])+p(d.appeal,d.appealEn);
 }
 function bodyBulletin(){
   var d=state.doc;
@@ -670,17 +817,21 @@ function bodyResults(){
 }
 function signHTML(){
   var s=state,L=s.lang;
-  var offs=arr('officials').filter(function(o){return (o.name||'').trim()||(o.title||'').trim();});
-  if(!offs.length)offs=[{name:'',nameEn:'',title:'学生处干事'}];
+  var offs=arr('officials').filter(function(o){return (o.name||'').trim()||(o.nameEn||'').trim()||(o.title||'').trim()||(o.titleEn||'').trim();});
+  if(!offs.length)offs=[{name:'',nameEn:'',title:'学生处干事',titleEn:'Student Affairs Officer'}];
   var blocks=offs.map(function(o){
     var who;
     if(L==='en')who=o.nameEn?esc(o.nameEn):(o.name?esc(o.name):'<span class="ph2">(to be signed)</span>');
     else if(L!=='zh'&&o.nameEn)who=esc(o.name)+'<span class="who-en">'+esc(o.nameEn)+'</span>';
     else who=o.name?esc(o.name):'<span class="ph2">（待签署）</span>';
-    return '<div class="sig-block"><div class="line"><span class="who '+(L==='en'?'en':'')+'">'+who+'</span></div><div class="t">'+esc(o.title||'')+'</div></div>';
+    var ttl=L==='en'?(o.titleEn||o.title||''):(o.title||'');
+    var ttlSub=(L==='bi'&&o.titleEn&&o.titleEn!==ttl)?'<div class="sub">'+esc(o.titleEn)+'</div>':'';
+    return '<div class="sig-block"><div class="line"><span class="who '+(L==='en'?'en':'')+'">'+who+'</span></div><div class="t">'+esc(ttl)+ttlSub+'</div></div>';
   }).join('');
+  var deptTxt=L==='en'?(s.org.deptEn||s.org.dept):s.org.dept;
+  var deptSub=(L==='bi'&&s.org.deptEn&&s.org.deptEn!==deptTxt)?'<span class="dept-en">'+esc(s.org.deptEn)+'</span>':'';
   return '<div class="sig-wrap"><div class="end-mark">'+(L==='en'?'— End of Document —':'（以下无正文）')+'</div>'
-    +'<div class="sig-org">'+esc(s.org.dept)+'</div>'
+    +'<div class="sig-org">'+esc(deptTxt)+deptSub+'</div>'
     +'<div class="signatures">'+blocks+'</div>'
     +'<div class="sig-date">'+(L==='en'?'Date of Issue: ':'签发日期：')+fmtDate(s.meta.date)+'</div></div>';
 }
@@ -727,16 +878,16 @@ function togglePen(v){
 }
 function addRow(key){
   var a=arr(key);
-  if(key==='parties')a.push({name:'',nameEn:'',role:'',no:''});
-  else if(key==='regs')a.push({code:'',desc:'',descEn:''});
-  else if(key==='officials')a.push({name:'',nameEn:'',title:'学生处干事'});
-  else if(key==='resultRows')a.push({rank:String(a.length+1),name:'',nameEn:'',result:'',remark:''});
+  if(key==='parties')a.push({name:'',nameEn:'',role:'',roleEn:'',no:''});
+  else if(key==='regs')a.push({code:'',codeEn:'',desc:'',descEn:''});
+  else if(key==='officials')a.push({name:'',nameEn:'',title:'学生处干事',titleEn:'Student Affairs Officer'});
+  else if(key==='resultRows')a.push({rank:String(a.length+1),name:'',nameEn:'',result:'',resultEn:'',remark:'',remarkEn:''});
   else a.push('');
   renderAll();scheduleSave();
 }
 function delRow(key,i){
   var a=arr(key);
-  if(a.length<=1){toast('至少保留一行');return;}
+  if(a.length<=1){toast(L2('至少保留一行','At least one row is required'));return;}
   a.splice(i,1);renderAll();scheduleSave();
 }
 function handleAct(act){
@@ -745,9 +896,12 @@ function handleAct(act){
   else if(a==='lang'){state.lang=act.getAttribute('data-v');syncLangSeg();renderAll();scheduleSave();}
   else if(a==='cls'){state.meta.cls=act.getAttribute('data-v');renderAll();scheduleSave();}
   else if(a==='pen')togglePen(act.getAttribute('data-v'));
+  else if(a==='title-edit'){state.doc.titleCustom=true;renderForm();scheduleSave();toast(L2('已切换为手动标题','Switched to manual title'));}
+  else if(a==='title-auto'){state.doc.titleCustom=false;autoTitle(state);renderAll();scheduleSave();toast(L2('已恢复自动生成标题','Switched back to auto title'));}
   else if(a==='add')addRow(act.getAttribute('data-list'));
   else if(a==='del')delRow(act.getAttribute('data-list'),+act.getAttribute('data-i'));
-  else if(a==='autono'){autoNo();renderAll();scheduleSave();toast('已生成编号：'+state.meta.no);}
+  else if(a==='autono'){autoNo();renderAll();scheduleSave();toast(L2('已生成编号：','Number generated: ')+state.meta.no);}
+  else if(a==='uilang'){uiLang=act.getAttribute('data-v');try{localStorage.setItem(KEY_UI,uiLang);}catch(e){}applyChrome();buildTypebar();syncUiSeg();renderForm();toast(L2('界面语言：中文','Interface language: English'));}
   else if(a==='zoom-in')setZoom(zoom+.1);
   else if(a==='zoom-out')setZoom(zoom-.1);
   else if(a==='zoom-fit')fitZoom();
@@ -765,33 +919,81 @@ document.addEventListener('click',function(e){
 function bindInputs(){
   function onInput(e){
     var b=e.target.getAttribute&&e.target.getAttribute('data-bind');
-    if(b){sp(state,b,e.target.value);renderPaper();scheduleSave();}
+    if(b){
+      sp(state,b,e.target.value);
+      if(b==='doc.event'||b==='doc.matter'||b==='doc.eventEn'||b==='doc.matterEn'){
+        autoTitle(state);
+        var d1=$('#autoTitleDisp');if(d1)d1.textContent=(state.lang==='en'?state.doc.titleEn:state.doc.title)||'';
+        var d2=$('#autoTitleDispEn');if(d2)d2.textContent=state.doc.titleEn||'';
+        var d3=$('#autoTitleDispZh');if(d3)d3.textContent=state.doc.title||'';
+      }
+      renderPaper();scheduleSave();
+    }
   }
   editor.addEventListener('input',onInput);
   editor.addEventListener('change',onInput);
 }
 function buildTypebar(){
   $('#typebar').innerHTML=TYPES.map(function(t){
-    return '<button class="pill'+(state.type===t.id?' active':'')+'" data-act="type" data-v="'+t.id+'">'+t.zh+'</button>';
+    return '<button class="pill'+(state.type===t.id?' active':'')+'" data-act="type" data-v="'+t.id+'">'+typeName(t.id)+'</button>';
   }).join('');
 }
+/* ================= 界面语言切换 ================= */
+function applyChrome(){
+  var en=uiLang==='en';
+  document.title=en?'OfficialDoc Portal':'OfficialDoc · 官方文件生成门户';
+  document.documentElement.lang=en?'en':'zh-CN';
+  var bm=$('#brandMark');if(bm)bm.textContent=en?'O':'官';
+  var bs=$('#brandSub');if(bs)bs.textContent=en?'Official Document Portal':'官方文件生成门户';
+  var bd=$('#brandDept');if(bd)bd.textContent=en?'GUIS-ULC Student Office · Official Documents':'GUIS-ULC 学生处 · 正式文书';
+  var btns=[['btnExample','Example','示例','Load a sample document','载入一份示例文件'],
+    ['btnNew','New','新建','Create a blank document','新建空白文件'],
+    ['btnSave','Save Draft','保存草稿','Save to drafts (Ctrl/Cmd + S)','保存到草稿箱（Ctrl/Cmd + S）'],
+    ['btnDrafts','Drafts','草稿箱','',''],
+    ['btnExportJson','Export JSON','导出 JSON','Export a JSON backup','导出为 JSON 备份'],
+    ['btnImportJson','Import','导入','Restore from a JSON backup','从 JSON 备份恢复'],
+    ['btnExportHtml','Export Doc','导出文档','Export a standalone printable HTML document','导出可打印的独立 HTML 文档'],
+    ['btnPrint','Print / PDF','打印 / 导出 PDF','Browser print / save as PDF','调用浏览器打印 / 另存为 PDF']];
+  btns.forEach(function(b){
+    var el=document.getElementById(b[0]);if(!el)return;
+    el.textContent=en?b[1]:b[2];
+    if(b[3])el.title=en?b[3]:b[4];
+  });
+  $$('#langSeg button').forEach(function(b){
+    var v=b.getAttribute('data-v');
+    b.textContent=v==='bi'?(en?'Bilingual':'双语'):(v==='zh'?'中文':'EN');
+  });
+  var z=$$('.zoom button');
+  if(z[0])z[0].title=en?'Zoom out':'缩小';
+  if(z[1])z[1].title=en?'Zoom in':'放大';
+  if(z[2]){z[2].title=en?'Fit width':'适应宽度';z[2].textContent=en?'Fit':'适应';}
+  var dt=$('#draftTitle');if(dt)dt.textContent=en?'Drafts':'草稿箱';
+  var x=document.querySelector('.modal-h .x');if(x)x.title=en?'Close':'关闭';
+  var ed=$('#editor');if(ed)ed.setAttribute('aria-label',en?'Document editor':'文件内容编辑区');
+  var pw=$('#pvWrap');if(pw)pw.setAttribute('aria-label',en?'Preview':'文件预览区');
+  var tb=$('#typebar');if(tb)tb.setAttribute('aria-label',en?'Document type':'文件类型');
+  var ls=$('#langSeg');if(ls)ls.setAttribute('aria-label',en?'Document language':'文件语言');
+  var zm=document.querySelector('.zoom');if(zm)zm.setAttribute('aria-label',en?'Preview zoom':'预览缩放');
+  var us=$('#uiSeg');if(us)us.setAttribute('aria-label',en?'Interface language':'界面语言');
+}
+function syncUiSeg(){$$('#uiSeg button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-v')===uiLang);});}
 
 /* ================= 草稿 / 导入导出 ================= */
 function loadDrafts(){try{return JSON.parse(localStorage.getItem(KEY_DRAFTS)||'[]');}catch(e){return [];}}
 function saveDrafts(list){try{localStorage.setItem(KEY_DRAFTS,JSON.stringify(list));}catch(e){toast('保存失败：存储空间不足');}}
 function saveDraft(){
   var list=loadDrafts();
-  var name=(state.doc.title||TYPE_MAP[state.type].zh)+' · '+(state.meta.no||'未编号');
+  var name=(state.doc.title||typeName(state.type))+' · '+(state.meta.no||L2('未编号','unnumbered'));
   list.unshift({id:Date.now(),name:name,at:new Date().toISOString(),state:JSON.parse(JSON.stringify(state))});
-  saveDrafts(list);toast('已保存草稿：'+name);
+  saveDrafts(list);toast(L2('已保存草稿：','Draft saved: ')+name);
 }
 function openDrafts(){
   var list=loadDrafts(),box=$('#draftList');
-  if(!list.length)box.innerHTML='<div class="empty">暂无草稿。<br>点击「保存草稿」即可将当前文件存入草稿箱。</div>';
+  if(!list.length)box.innerHTML='<div class="empty">'+tr('暂无草稿。<br>点击「保存草稿」即可将当前文件存入草稿箱。')+'</div>';
   else box.innerHTML=list.map(function(d){
     return '<div class="draft-item"><div class="di-txt"><div class="di-name">'+esc(d.name)+'</div><div class="di-meta">'
-      +new Date(d.at).toLocaleString('zh-CN',{hour12:false})+' · '+esc(d.state&&d.state.meta?d.state.meta.no:'')+' · '+(TYPE_MAP[d.state&&d.state.type]?TYPE_MAP[d.state.type].zh:'')+'</div></div>'
-      +'<div class="di-ops"><button class="mini-btn" data-act="load-draft" data-id="'+d.id+'">载入</button><button class="mini-btn danger" data-act="del-draft" data-id="'+d.id+'">删除</button></div></div>';
+      +new Date(d.at).toLocaleString(uiLang==='en'?'en-GB':'zh-CN',{hour12:false})+' · '+esc(d.state&&d.state.meta?d.state.meta.no:'')+' · '+(TYPE_MAP[d.state&&d.state.type]?typeName(d.state.type):'')+'</div></div>'
+      +'<div class="di-ops"><button class="mini-btn" data-act="load-draft" data-id="'+d.id+'">'+tr('载入')+'</button><button class="mini-btn danger" data-act="del-draft" data-id="'+d.id+'">'+tr('删除')+'</button></div></div>';
   }).join('');
   draftMask.hidden=false;
 }
@@ -801,20 +1003,20 @@ function loadDraft(id){
   var s=Object.assign(blank(),d.state);
   if(!TYPE_MAP[s.type])s.type='decision';
   state=s;applyTypeDefaults(state);
-  draftMask.hidden=true;syncTypebar();syncLangSeg();renderAll();toast('已载入草稿');
+  draftMask.hidden=true;syncTypebar();syncLangSeg();renderAll();toast(L2('已载入草稿','Draft loaded'));
 }
 function delDraft(id){
   saveDrafts(loadDrafts().filter(function(x){return x.id!==id;}));
-  openDrafts();toast('已删除');
+  openDrafts();toast(L2('已删除','Deleted'));
 }
 function exportJson(){
   download(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),'officialdoc-'+(state.meta.no||'draft')+'.json');
-  toast('已导出 JSON 备份');
+  toast(L2('已导出 JSON 备份','JSON backup exported'));
 }
 function exportHtml(){
   var css=$('#css-paper').textContent;
-  var doc='<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">'
-    +'<title>'+esc(state.meta.no||state.doc.title||'官方文件')+'</title>'
+  var doc='<!DOCTYPE html><html lang="'+(state.lang==='en'?'en':'zh-CN')+'"><head><meta charset="utf-8">'
+    +'<title>'+esc(state.meta.no||state.doc.title||'Official Document')+'</title>'
     +'<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
     +'<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Ma+Shan+Zheng&family=Caveat:wght@500;600&display=swap" rel="stylesheet">'
     +'<style>'+css+'\nbody{margin:0;background:#eef0f3;display:flex;justify-content:center;padding:26px 0}'
@@ -822,20 +1024,20 @@ function exportHtml(){
     +'\n@media print{body{background:#fff;padding:0;display:block}.paper{box-shadow:none;margin:0;padding:0;width:auto;min-height:0}@page{size:A4;margin:16mm 15mm}}</style>'
     +'</head><body>'+paper.outerHTML+'</body></html>';
   download(new Blob([doc],{type:'text/html'}),'doc-'+(state.meta.no||'document')+'.html');
-  toast('已导出独立 HTML 文档');
+  toast(L2('已导出独立 HTML 文档','Standalone HTML document exported'));
 }
 
 /* ================= 初始化 ================= */
 var state=example();
 (function init(){
-  try{var cur=localStorage.getItem(KEY_CUR);if(cur){var s=JSON.parse(cur);if(s&&s.meta&&s.doc){state=Object.assign(blank(),s);toast('已恢复上次编辑内容');}}}catch(e){}
+  try{var cur=localStorage.getItem(KEY_CUR);if(cur){var s=JSON.parse(cur);if(s&&s.meta&&s.doc){state=Object.assign(blank(),s);toast(tr('已恢复上次编辑内容'));}}}catch(e){}
   if(!TYPE_MAP[state.type])state.type='decision';
   applyTypeDefaults(state);
   if(!state.meta.no)autoNo();
-  buildTypebar();syncLangSeg();renderAll();fitZoom();
+  applyChrome();buildTypebar();syncLangSeg();syncUiSeg();renderAll();fitZoom();
   bindInputs();
-  $('#btnExample').addEventListener('click',function(){state=example();applyTypeDefaults(state);syncTypebar();syncLangSeg();renderAll();toast('已载入示例文件');});
-  $('#btnNew').addEventListener('click',function(){state=blank();autoNo();applyTypeDefaults(state);syncTypebar();syncLangSeg();renderAll();toast('已新建空白文件');});
+  $('#btnExample').addEventListener('click',function(){state=example();applyTypeDefaults(state);syncTypebar();syncLangSeg();renderAll();toast(tr('已载入示例文件'));});
+  $('#btnNew').addEventListener('click',function(){state=blank();autoNo();applyTypeDefaults(state);syncTypebar();syncLangSeg();renderAll();toast(tr('已新建空白文件'));});
   $('#btnSave').addEventListener('click',saveDraft);
   $('#btnDrafts').addEventListener('click',openDrafts);
   $('#btnExportJson').addEventListener('click',exportJson);
@@ -851,8 +1053,8 @@ var state=example();
         if(!s||!s.meta||!s.doc)throw new Error('bad format');
         if(!TYPE_MAP[s.type])s.type='decision';
         state=Object.assign(blank(),s);applyTypeDefaults(state);
-        syncTypebar();syncLangSeg();renderAll();toast('导入成功');
-      }catch(err){toast('导入失败：文件格式不正确');}
+        syncTypebar();syncLangSeg();renderAll();toast(L2('导入成功','Import successful'));
+      }catch(err){toast(L2('导入失败：文件格式不正确','Import failed: invalid file format'));}
       e.target.value='';
     };
     r.readAsText(f);
