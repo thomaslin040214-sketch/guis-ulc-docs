@@ -84,6 +84,8 @@ details.card>summary.card-h::after{content:"▸";color:var(--muted);font-size:11
 details.card[open]>summary.card-h::after{transform:rotate(90deg)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
 .fld{display:flex;flex-direction:column;gap:4px;min-width:0}
+.chk{display:flex;align-items:center;gap:6px;margin:8px 0 2px;font-size:12px;color:#3a4149;cursor:pointer}
+.chk input{width:15px;height:15px;accent-color:#9C2126;cursor:pointer}
 .fld-l{font-size:11.5px;color:var(--ink-2);font-weight:600;display:flex;align-items:center}
 .en-h{font-size:9.5px;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 3px;margin-left:5px;font-weight:400;line-height:1.4}
 input[type=text],input[type=date],input[type=time],textarea{width:100%;border:1px solid var(--line-strong);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;background:#fff;color:var(--ink);transition:border-color .15s,box-shadow .15s}
@@ -320,7 +322,7 @@ var uiLang='zh';try{uiLang=localStorage.getItem(KEY_UI)||'zh';}catch(e){}
 function L2(z,e){return uiLang==='en'?e:z;}
 var LABELS={
 '机构设置':'Organization','信头 / 徽标 / 编号前缀':'Letterhead / emblem / no. prefix','机构名称':'Organization Name','机构名称（英文）':'Organization Name (EN)','发文部门':'Issuing Department','编号前缀':'Number Prefix','徽标缩写':'Emblem Abbreviation',
-'文件信息':'Document Information','编号 / 日期 / 密级 / 收发':'No. / date / classification / from–to','文件编号':'Document No.','自动生成':'Auto','按前缀自动生成':'Generate from prefix','密级':'Classification','公开':'Public','内部':'Internal','签发日期':'Date of Issue','签发时间（UTC+8）':'Time of Issue (UTC+8)','自（From）':'From','至（To）':'To',
+'文件信息':'Document Information','编号 / 日期 / 收发':'No. / date / from–to','文件编号':'Document No.','自动生成':'Auto','按前缀自动生成':'Generate from prefix','签发日期':'Date of Issue','签发时间（UTC+8）':'Time of Issue (UTC+8)','自（From）':'From','至（To）':'To','显示日期（报头 / 收发表 / 署名区）':'Show date (masthead / meta / signature)',
 '活动与标题':'Event & Title','事件 / 事项 / 标题自动生成':'Event / matter / auto title','活动 / 事件名称':'Event Name','事项 / 场景':'Matter / Scenario','环节 / 场次':'Session / Stage',
 '正文内容':'Content','事实经过':'Facts of the Matter','事发信息':'Incident Details','发生时间':'Time','节次':'Period','地点':'Location','决定内容':'Decision','理由说明':'Reason',
 '被约谈人':'Person to be Met','班级 / 年级':'Class / Grade','约谈事由':'Reason for the Meeting','到校要求':'Appearance Requirements','到校时间':'When','谈话地点':'Where','未按时到校的后果':'Consequence of Non-Attendance',
@@ -440,8 +442,6 @@ var LABEL_DEFS={
   to:{zh:'至',en:'To'},
   date:{zh:'签发日期',en:'Date'},
   time:{zh:'签发时间',en:'Time'},
-  cls:{zh:'密级',en:'Classification'},
-  doctype:{zh:'文件类型',en:'Doc. Type'},
   docno:{zh:'文件编号',en:'DOCUMENT NO.'},
   sigdate:{zh:'签发日期：',en:'Date of Issue: '}
 };
@@ -496,7 +496,7 @@ function blank(){
   var t=nowCST();
   return {type:'decision',lang:'zh',
     org:{name:'GUIS-ULC 学生处',nameEn:'GUIS-ULC Student Office',dept:'学生处',deptEn:'Student Office',prefix:'ULC-SA',abbr:'GUIS'},
-    meta:{no:'',date:t.d,time:t.t,cls:'public',from:'',fromEn:'',to:'',toEn:''},
+    meta:{no:'',date:t.d,time:t.t,cls:'public',from:'',fromEn:'',to:'',toEn:''},showDate:false,
     doc:{event:'',eventEn:'',matter:'',matterEn:'',session:'',sessionEn:'',title:'',titleEn:'',titleCustom:false,
       facts:'',factsEn:'',incTime:'',incSession:'',incSessionEn:'',incPlace:'',incPlaceEn:'',
       decision:'',decisionEn:'',
@@ -506,7 +506,7 @@ function blank(){
       resultCategory:'',resultCategoryEn:'',
       titleMain:'',titleMainEn:'',preamble:'',preambleEn:'',notify:'',notifyEn:'',
       effective:'',effectiveEn:'',appeal:'',appealEn:''},
-    labels:{from:{zh:'自',en:'From'},to:{zh:'至',en:'To'},date:{zh:'签发日期',en:'Date'},time:{zh:'签发时间',en:'Time'},cls:{zh:'密级',en:'Classification'},doctype:{zh:'文件类型',en:'Doc. Type'},docno:{zh:'文件编号',en:'DOCUMENT NO.'},sigdate:{zh:'签发日期：',en:'Date of Issue: '}},
+    labels:{from:{zh:'自',en:'From'},to:{zh:'至',en:'To'},date:{zh:'签发日期',en:'Date'},time:{zh:'签发时间',en:'Time'},docno:{zh:'文件编号',en:'DOCUMENT NO.'},sigdate:{zh:'签发日期：',en:'Date of Issue: '}},
     parties:[{name:'',nameEn:'',role:'',roleEn:'',no:''}],
     regs:[{code:'',codeEn:'',desc:'',descEn:''}],
     officials:[{name:'',nameEn:'',title:'学生处主任',titleEn:'Director of Student Affairs'},{name:'',nameEn:'',title:'年级组长',titleEn:'Head of Year'},{name:'',nameEn:'',title:'学生处干事',titleEn:'Student Affairs Officer'}],
@@ -517,7 +517,7 @@ function blank(){
 function example(){
   var s=blank();
   s.type='decision';
-  s.meta.no='ULC-SA-2026-012';s.meta.date='2026-10-20';s.meta.time='16:30';s.meta.cls='public';
+  s.meta.no='ULC-SA-2026-012';s.meta.date='2026-10-20';s.meta.time='16:30';
   s.meta.from='GUIS-ULC 学生处';s.meta.fromEn='The Student Office';
   s.meta.to='G10-A 班李思远同学及家长';s.meta.toEn='Li Siyuan (G10-A) and Parents';
   s.doc.event='ULC 2026 学年秋季学期';s.doc.eventEn='ULC 2026 Autumn Semester';
@@ -638,8 +638,6 @@ function labelsCard(){
   h+=labelField('to','至 / To');
   h+=labelField('date','签发日期 / Date');
   h+=labelField('time','签发时间 / Time');
-  h+=labelField('cls','密级 / Classification');
-  h+=labelField('doctype','文件类型 / Doc. Type');
   h+=labelField('docno','文件编号标签');
   h+=labelField('sigdate','署名区签发日期标签');
   return h+'</div></details>';
@@ -737,11 +735,11 @@ function buildForm(){
     +fGrid(fInp('发文部门','org.dept','学生处')+fInp('编号前缀','org.prefix','ULC-SA',false))
     +fInp('徽标缩写','org.abbr','GUIS',false)
     +'</div></details>';
-  h+='<div class="card"><div class="card-h"><span class="card-t">'+tr('文件信息')+'</span><span class="card-hint">'+tr('编号 / 日期 / 密级 / 收发')+'</span></div><div class="card-b">'
+  h+='<div class="card"><div class="card-h"><span class="card-t">'+tr('文件信息')+'</span><span class="card-hint">'+tr('编号 / 日期 / 收发')+'</span></div><div class="card-b">'
     +'<div class="fld"><span class="fld-l">'+tr('文件编号')+'</span><div class="no-row"><input type="text" data-bind="meta.no" value="'+esc(s.meta.no)+'"><button class="mini-btn" data-act="autono" title="'+tr('按前缀自动生成')+'">'+tr('自动生成')+'</button></div></div>'
-    +'<div class="fld"><span class="fld-l">'+tr('密级')+'</span><div class="seg"><button data-act="cls" data-v="public" class="'+(s.meta.cls==='public'?'on':'')+'">'+tr('公开')+'</button><button data-act="cls" data-v="internal" class="'+(s.meta.cls==='internal'?'on':'')+'">'+tr('内部')+'</button></div></div>'
     +fGrid('<div class="fld"><span class="fld-l">'+tr('签发日期')+'</span><input type="date" data-bind="meta.date" value="'+esc(s.meta.date)+'"></div>'
       +'<div class="fld"><span class="fld-l">'+tr('签发时间（UTC+8）')+'</span><input type="time" data-bind="meta.time" value="'+esc(s.meta.time)+'"></div>')
+    +'<label class="chk"><input type="checkbox" data-bind="showDate"'+(s.showDate?' checked':'')+'> '+tr('显示日期（报头 / 收发表 / 署名区）')+'</label>'
     +fInp('自（From）','meta.from','GUIS-ULC 学生处')
     +fInp('至（To）','meta.to','相关学生及家长')
     +'</div></div>';
@@ -788,11 +786,11 @@ function buildFreeForm(){
     +fGrid(fInp('发文部门','org.dept','学生处')+fInp('编号前缀','org.prefix','ULC-SA',false))
     +fInp('徽标缩写','org.abbr','GUIS',false)
     +'</div></details>';
-  h+='<div class="card"><div class="card-h"><span class="card-t">'+tr('文件信息')+'</span><span class="card-hint">'+tr('编号 / 日期 / 密级 / 收发')+'</span></div><div class="card-b">'
+  h+='<div class="card"><div class="card-h"><span class="card-t">'+tr('文件信息')+'</span><span class="card-hint">'+tr('编号 / 日期 / 收发')+'</span></div><div class="card-b">'
     +'<div class="fld"><span class="fld-l">'+tr('文件编号')+'</span><div class="no-row"><input type="text" data-bind="meta.no" value="'+esc(s.meta.no)+'"><button class="mini-btn" data-act="autono" title="'+tr('按前缀自动生成')+'">'+tr('自动生成')+'</button></div></div>'
-    +'<div class="fld"><span class="fld-l">'+tr('密级')+'</span><div class="seg"><button data-act="cls" data-v="public" class="'+(s.meta.cls==='public'?'on':'')+'">'+tr('公开')+'</button><button data-act="cls" data-v="internal" class="'+(s.meta.cls==='internal'?'on':'')+'">'+tr('内部')+'</button></div></div>'
     +fGrid('<div class="fld"><span class="fld-l">'+tr('签发日期')+'</span><input type="date" data-bind="meta.date" value="'+esc(s.meta.date)+'"></div>'
       +'<div class="fld"><span class="fld-l">'+tr('签发时间（UTC+8）')+'</span><input type="time" data-bind="meta.time" value="'+esc(s.meta.time)+'"></div>')
+    +'<label class="chk"><input type="checkbox" data-bind="showDate"'+(s.showDate?' checked':'')+'> '+tr('显示日期（报头 / 收发表 / 署名区）')+'</label>'
     +fInp('自（From）','meta.from','GUIS-ULC 学生处')
     +fInp('至（To）','meta.to','相关学生及家长')
     +'</div></div>';
@@ -877,22 +875,24 @@ function headHTML(){
   var logos='<img class="fm-logo" src="'+LOGO_URI+'" alt="GUIS | ULC">';if(isVA)logos+='<img class="fm-va" src="'+VA_URI+'" alt="VA">';
   var mast='<div class="fia-mast"><div class="fm-l">'+logos+'</div>';
   if(ev&&ev!==orgLine)mast+='<div class="fm-event">'+esc(ev)+'</div>';
-  mast+='<div class="fm-org">'+esc(orgTxt)+'</div>'
-    +'<div class="fm-date">'+fmtDate(s.meta.date)+'</div>'
-    +'<div class="fm-no"><div class="k">'+lbl('docno')+'</div><div class="v">'+esc(s.meta.no||'————')+'</div></div>'
+  mast+='<div class="fm-org">'+esc(orgTxt)+'</div>';
+  if(s.showDate)mast+='<div class="fm-date">'+fmtDate(s.meta.date)+'</div>';
+  mast+='<div class="fm-no"><div class="k">'+lbl('docno')+'</div><div class="v">'+esc(s.meta.no||'————')+'</div></div>'
     +'</div>';
   return mast;
 }
 /* FIA 式收发信息表：From / To / Date / Time / Classification / Doc. Type */
 function metaHTML(){
   var s=state,L=s.lang;
-  var clsV=s.meta.cls==='internal'?(L==='en'?'Internal':'内部'):(L==='en'?'Public':'公开');
-  var TT=TYPE_MAP[s.type]||TYPES[0];
-  return '<table class="fia-meta">'
-    +'<tr><td class="k">'+lbl('from')+'</td><td>'+valTxt(s.meta.from,s.meta.fromEn)+'</td><td class="k">'+lbl('date')+'</td><td>'+fmtDate(s.meta.date)+'</td></tr>'
-    +'<tr><td class="k">'+lbl('to')+'</td><td>'+valTxt(s.meta.to,s.meta.toEn)+'</td><td class="k">'+lbl('time')+'</td><td>'+esc(s.meta.time||'——')+' (UTC+8)</td></tr>'
-    +'<tr><td class="k">'+lbl('cls')+'</td><td>'+clsV+'</td><td class="k">'+lbl('doctype')+'</td><td>'+esc(L==='en'?TT.en:TT.zh)+'</td></tr>'
-    +'</table>';
+  var h='<table class="fia-meta">';
+  if(s.showDate){
+    h+='<tr><td class="k">'+lbl('from')+'</td><td>'+valTxt(s.meta.from,s.meta.fromEn)+'</td><td class="k">'+lbl('date')+'</td><td>'+fmtDate(s.meta.date)+'</td></tr>'
+      +'<tr><td class="k">'+lbl('to')+'</td><td>'+valTxt(s.meta.to,s.meta.toEn)+'</td><td class="k">'+lbl('time')+'</td><td>'+esc(s.meta.time||'——')+' (UTC+8)</td></tr>';
+  }else{
+    h+='<tr><td class="k">'+lbl('from')+'</td><td>'+valTxt(s.meta.from,s.meta.fromEn)+'</td><td class="k">'+lbl('to')+'</td><td>'+valTxt(s.meta.to,s.meta.toEn)+'</td></tr>';
+  }
+  h+='</table>';
+  return h;
 }
 /* 文种标题（居中大写加粗）+ 描述性副标题（自动生成的关于……） */
 function titleHTML(){
@@ -1142,7 +1142,7 @@ function signHTML(){
   if(s.type==='personnel'||s.type==='free'){
     var deptTxt=L==='en'?(s.org.deptEn||s.org.dept||'Volunteer Organization'):(s.org.dept||'义工组织');
     return '<div class="sig-org">'+esc(deptTxt)+'</div>'
-      +'<div class="sig-date">'+lbl('sigdate')+fmtDate(s.meta.date)+'</div>';
+      + (s.showDate?'<div class="sig-date">'+lbl('sigdate')+fmtDate(s.meta.date)+'</div>':'');
   }
   var offs=arr('officials').filter(function(o){return (o.name||'').trim()||(o.nameEn||'').trim()||(o.title||'').trim()||(o.titleEn||'').trim();});
   if(!offs.length)offs=[{name:'',nameEn:'',title:L==='en'?'':'学生处干事',titleEn:L==='en'?'Student Affairs Officer':''}];
@@ -1157,7 +1157,7 @@ function signHTML(){
   return '<div class="notify-row">'+docNotify()+'</div>'
     +'<div class="sig-org">'+esc(deptTxt)+'</div>'
     +'<div class="signatures">'+blocks+'</div>'
-    +'<div class="sig-date">'+lbl('sigdate')+fmtDate(s.meta.date)+'</div>';
+    + (s.showDate?'<div class="sig-date">'+lbl('sigdate')+fmtDate(s.meta.date)+'</div>':'');
 }
 function renderPaper(){
   var s=state;
@@ -1224,7 +1224,6 @@ function handleAct(act){
   var a=act.getAttribute('data-act');
   if(a==='type')setType(act.getAttribute('data-v'));
   else if(a==='lang'){state.lang=act.getAttribute('data-v');syncLangSeg();renderAll();scheduleSave();}
-  else if(a==='cls'){state.meta.cls=act.getAttribute('data-v');renderAll();scheduleSave();}
   else if(a==='pen')togglePen(act.getAttribute('data-v'));
   else if(a==='pact'){var pi=+act.getAttribute('data-i');var pv=act.getAttribute('data-v');if(state.personnel[pi]){state.personnel[pi].action=pv;renderAll();scheduleSave();}}
   else if(a==='title-edit'){state.doc.titleCustom=true;renderForm();scheduleSave();toast(L2('已切换为手动标题','Switched to manual title'));}
@@ -1277,7 +1276,7 @@ function bindInputs(){
     if(b){
       unmarkMT(b);
       var mp=mtPair(b);if(mp)unmarkMT(mp.dst);
-      sp(b,e.target.value!==undefined?e.target.value:e.target.innerHTML);
+      var v;if(e.target.type==='checkbox')v=e.target.checked;else v=e.target.value!==undefined?e.target.value:e.target.innerHTML;sp(b,v);
       if(b==='doc.bodyHtml')state.doc.bodyManual=true;
       if(b==='doc.event'||b==='doc.matter'||b==='doc.eventEn'||b==='doc.matterEn'){
         autoTitle(state);refreshTitleDisplays();
@@ -1426,11 +1425,12 @@ function exportPdf(){
     // 临时还原 1:1 缩放，确保按真实 A4 尺寸捕获
     var pt=paper.style.transform,pw=pvSizer.style.width,phh=pvSizer.style.height;
     paper.style.transform='none';pvSizer.style.width='auto';pvSizer.style.height='auto';
-    return html2canvas(paper,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false}).then(function(canvas){
+    var PDF_SCALE=1.45; // 约 139 DPI：体积与清晰度平衡（scale 2→1.45 可再砍约一半体积）
+    return html2canvas(paper,{scale:PDF_SCALE,backgroundColor:'#ffffff',useCORS:true,logging:false}).then(function(canvas){
       paper.style.transform=pt;pvSizer.style.width=pw;pvSizer.style.height=phh;
       var jsPDF=window.jspdf.jsPDF;
       var pdf=new jsPDF({unit:'mm',format:'a4',orientation:'portrait'});
-      var PW=210,PH=297,imgW=PW,imgH=canvas.height*imgW/canvas.width,img=canvas.toDataURL('image/jpeg',0.92);
+      var PW=210,PH=297,imgW=PW,imgH=canvas.height*imgW/canvas.width,img=canvas.toDataURL('image/jpeg',0.82);
       if(imgH<=PH){
         pdf.addImage(img,'JPEG',0,0,imgW,imgH);
       }else{
@@ -1695,7 +1695,7 @@ function normalizeState(s){
   if(!Array.isArray(s._mt))s._mt=[];
   if(!Array.isArray(s.personnel))s.personnel=[{name:'',nameEn:'',action:'appoint',position:'',positionEn:'',term:'',termEn:''}];
   if(typeof s.autoMT!=='boolean')s.autoMT=false;
-  if(!s.doc)s.doc={};  if(typeof s.doc.freeHtml!=='string')s.doc.freeHtml='';if(typeof s.doc.bodyHtml!=='string')s.doc.bodyHtml='';if(typeof s.doc.bodyManual!=='boolean')s.doc.bodyManual=false;
+  if(!s.doc)s.doc={};  if(typeof s.doc.freeHtml!=='string')s.doc.freeHtml='';if(typeof s.doc.bodyHtml!=='string')s.doc.bodyHtml='';if(typeof s.doc.bodyManual!=='boolean')s.doc.bodyManual=false;if(typeof s.showDate!=='boolean')s.showDate=false;
   if(typeof s.doc.titleMain!=='string')s.doc.titleMain='';if(typeof s.doc.titleMainEn!=='string')s.doc.titleMainEn='';
   if(typeof s.doc.preamble!=='string')s.doc.preamble='';if(typeof s.doc.preambleEn!=='string')s.doc.preambleEn='';
   if(typeof s.doc.notify!=='string')s.doc.notify='';if(typeof s.doc.notifyEn!=='string')s.doc.notifyEn='';
