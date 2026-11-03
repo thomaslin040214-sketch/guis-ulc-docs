@@ -268,7 +268,8 @@ textarea{resize:vertical;min-height:72px;line-height:1.65}
     <button class="btn" id="btnImportJson" title="Restore from a JSON backup">Import</button>
     <button class="btn mt" id="btnTranslate" title="Translate and download">Translate &amp; Download</button>
     <button class="btn" id="btnExportHtml" title="Export a standalone printable HTML document">Export Doc</button>
-    <button class="btn primary" id="btnPrint" title="Browser print / save as PDF">Print / PDF</button>
+    <button class="btn mt" id="btnExportPdf" title="Export a clean PDF without print header/footer">导出 PDF</button>
+    <button class="btn primary" id="btnPrint" title="Browser print / save as PDF (adds print header/footer)">Print / PDF</button>
     <input type="file" id="fileInput" accept=".json,application/json" hidden>
   </div>
 </header>
@@ -431,6 +432,19 @@ var TITLES={
     effective:'本决定自签发之日起生效。',effectiveEn:'This decision takes effect from the date of issue.'},
   free:{zh:'自由文档',en:'FREE DOCUMENT',from:'',to:'',preamble:'',preambleEn:'',appeal:'',appealEn:'',effective:'',effectiveEn:''}
 };
+/* 可改写的版式标签与署名行默认值：用户可在「标签文字（高级）」卡片里逐项改写，确保无一文字不可编辑 */
+var NOTIFY_DEF='已通知学生及家长：☐ 是　日期：__________';
+var NOTIFY_DEF_EN='Notified to the student and parents: ☐ Yes — Date: __________';
+var LABEL_DEFS={
+  from:{zh:'自',en:'From'},
+  to:{zh:'至',en:'To'},
+  date:{zh:'签发日期',en:'Date'},
+  time:{zh:'签发时间',en:'Time'},
+  cls:{zh:'密级',en:'Classification'},
+  doctype:{zh:'文件类型',en:'Doc. Type'},
+  docno:{zh:'文件编号',en:'DOCUMENT NO.'},
+  sigdate:{zh:'签发日期：',en:'Date of Issue: '}
+};
 /* ================= 事项场景与标题自动生成 ================= */
 var MATTERS=[
   {zh:'课堂纪律',en:'Classroom Discipline'},
@@ -490,7 +504,9 @@ function blank(){
       infringement:'',infringementEn:'',penaltyTypes:[],penaltyDetail:'',penaltyDetailEn:'',execDeadline:'',execDeadlineEn:'',
       body:'',bodyEn:'',freeHtml:'',bodyHtml:'',bodyManual:false,
       resultCategory:'',resultCategoryEn:'',
+      titleMain:'',titleMainEn:'',preamble:'',preambleEn:'',notify:'',notifyEn:'',
       effective:'',effectiveEn:'',appeal:'',appealEn:''},
+    labels:{from:{zh:'自',en:'From'},to:{zh:'至',en:'To'},date:{zh:'签发日期',en:'Date'},time:{zh:'签发时间',en:'Time'},cls:{zh:'密级',en:'Classification'},doctype:{zh:'文件类型',en:'Doc. Type'},docno:{zh:'文件编号',en:'DOCUMENT NO.'},sigdate:{zh:'签发日期：',en:'Date of Issue: '}},
     parties:[{name:'',nameEn:'',role:'',roleEn:'',no:''}],
     regs:[{code:'',codeEn:'',desc:'',descEn:''}],
     officials:[{name:'',nameEn:'',title:'学生处主任',titleEn:'Director of Student Affairs'},{name:'',nameEn:'',title:'年级组长',titleEn:'Head of Year'},{name:'',nameEn:'',title:'学生处干事',titleEn:'Student Affairs Officer'}],
@@ -608,6 +624,26 @@ function titleField(){
   }
   return h;
 }
+/* 版式标签改写字段（始终同时显示中文 / 英文，供 bi 文档使用） */
+function labelField(key,label){
+  var o=state.labels[key]||LABEL_DEFS[key]||{zh:'',en:''};
+  return '<div class="fld"><span class="fld-l">'+tr(label)+'</span>'
+    +'<div class="in-row"><input type="text" data-bind="labels.'+key+'.zh" value="'+esc(o.zh)+'" placeholder="'+tr('中文')+'">'
+    +'<input type="text" class="en-in" data-bind="labels.'+key+'.en" value="'+esc(o.en)+'" placeholder="EN"></div></div>';
+}
+/* 标签文字（高级）卡片：逐项改写版式中所有固定标签 */
+function labelsCard(){
+  var h='<details class="card"><summary class="card-h"><span class="card-t">'+tr('标签文字（高级）')+'</span><span class="card-hint">'+tr('改写版式中的固定标签')+'</span></summary><div class="card-b">';
+  h+=labelField('from','自 / From');
+  h+=labelField('to','至 / To');
+  h+=labelField('date','签发日期 / Date');
+  h+=labelField('time','签发时间 / Time');
+  h+=labelField('cls','密级 / Classification');
+  h+=labelField('doctype','文件类型 / Doc. Type');
+  h+=labelField('docno','文件编号标签');
+  h+=labelField('sigdate','署名区签发日期标签');
+  return h+'</div></details>';
+}
 
 function rowParty(it,i){
   return '<div class="row r2">'
@@ -713,7 +749,11 @@ function buildForm(){
     +fInp('活动 / 事件名称','doc.event','ULC 2026 学年秋季学期')
     +'<div class="fld"><span class="fld-l">'+tr('事项 / 场景')+'</span>'+langInp('doc.matter','doc.matterEn','如：课堂使用手机（用于生成标题）','matterList','matterListEn')+'</div>'
     +fInp('环节 / 场次','doc.session','日常管理 · 课堂纪律')
+    +fInp('主标题（可改写文种名）','doc.titleMain',TITLES[s.type].zh)
     +titleField()
+    +'</div></div>';
+  h+='<div class="card"><div class="card-h"><span class="card-t">'+tr('导语（可选）')+'</span><span class="card-hint">'+tr('留空则用文种默认导语')+'</span></div><div class="card-b">'
+    +fArea('导语','doc.preamble',3,TITLES[s.type].preamble)
     +'</div></div>';
   h+=bodyForm();
   if(s.type==='personnel')h+=listCard('personnel','任免事项','逐条填写任命 / 免去的人员与职务（下方「正文」会自动生成对应表格）',rowPersonnel);
@@ -732,7 +772,9 @@ function buildForm(){
   h+='<div class="card"><div class="card-h"><span class="card-t">'+tr('生效与附注')+'</span><span class="card-hint">'+tr('申诉权利 / 其他事项')+'</span></div><div class="card-b">'
     +fArea('生效说明','doc.effective',2,'如：本决定自签发之日起生效。')
     +(s.type==='personnel'?'':fArea('附注 / 申诉权利','doc.appeal',3,'申诉期限、受理机构等……'))
+    +(s.type!=='personnel'&&s.type!=='free'?fArea('通知家长行（署名区）','doc.notify',2,NOTIFY_DEF):'')
     +'</div></div>';
+  h+=labelsCard();
   h+='<div class="editor-tip">'+tr('所有内容仅保存于本机浏览器；「导出文档」可生成独立 HTML 用于打印或分享。')+'</div>';
   return h;
 }
@@ -754,11 +796,14 @@ function buildFreeForm(){
     +fInp('自（From）','meta.from','GUIS-ULC 学生处')
     +fInp('至（To）','meta.to','相关学生及家长')
     +'</div></div>';
-  h+='<div class="card"><div class="card-h"><span class="card-t">'+tr('文件标题')+'</span><span class="card-hint">'+tr('可手动改写')+'</span></div><div class="card-b">'+titleField()+'</div></div>';
+  h+='<div class="card"><div class="card-h"><span class="card-t">'+tr('文件标题')+'</span><span class="card-hint">'+tr('可手动改写')+'</span></div><div class="card-b">'
+    +fInp('主标题（可改写文种名）','doc.titleMain',TITLES[s.type].zh)
+    +titleField()+'</div></div>';
   h+=freeEditorCard();
   h+='<div class="card"><div class="card-h"><span class="card-t">'+tr('生效说明')+'</span><span class="card-hint">'+tr('选填')+'</span></div><div class="card-b">'
     +fArea('生效说明','doc.effective',2,'如：本决定自签发之日起生效。')
     +'</div></div>';
+  h+=labelsCard();
   h+='<div class="editor-tip">'+tr('所有内容仅保存于本机浏览器；「导出文档」可生成独立 HTML 用于打印或分享。')+'</div>';
   return h;
 }
@@ -834,41 +879,69 @@ function headHTML(){
   if(ev&&ev!==orgLine)mast+='<div class="fm-event">'+esc(ev)+'</div>';
   mast+='<div class="fm-org">'+esc(orgTxt)+'</div>'
     +'<div class="fm-date">'+fmtDate(s.meta.date)+'</div>'
-    +'<div class="fm-no"><div class="k">'+(L==='en'?'DOCUMENT NO.':'文件编号')+'</div><div class="v">'+esc(s.meta.no||'————')+'</div></div>'
+    +'<div class="fm-no"><div class="k">'+lbl('docno')+'</div><div class="v">'+esc(s.meta.no||'————')+'</div></div>'
     +'</div>';
   return mast;
 }
 /* FIA 式收发信息表：From / To / Date / Time / Classification / Doc. Type */
 function metaHTML(){
   var s=state,L=s.lang;
-  function k(zh,en){return L==='en'?en:(L==='zh'?zh:zh+' '+en);}
   var clsV=s.meta.cls==='internal'?(L==='en'?'Internal':'内部'):(L==='en'?'Public':'公开');
   var TT=TYPE_MAP[s.type]||TYPES[0];
   return '<table class="fia-meta">'
-    +'<tr><td class="k">'+k('自','From')+'</td><td>'+valTxt(s.meta.from,s.meta.fromEn)+'</td><td class="k">'+k('签发日期','Date')+'</td><td>'+fmtDate(s.meta.date)+'</td></tr>'
-    +'<tr><td class="k">'+k('至','To')+'</td><td>'+valTxt(s.meta.to,s.meta.toEn)+'</td><td class="k">'+k('签发时间','Time')+'</td><td>'+esc(s.meta.time||'——')+' (UTC+8)</td></tr>'
-    +'<tr><td class="k">'+k('密级','Classification')+'</td><td>'+clsV+'</td><td class="k">'+k('文件类型','Doc. Type')+'</td><td>'+esc(L==='en'?TT.en:TT.zh)+'</td></tr>'
+    +'<tr><td class="k">'+lbl('from')+'</td><td>'+valTxt(s.meta.from,s.meta.fromEn)+'</td><td class="k">'+lbl('date')+'</td><td>'+fmtDate(s.meta.date)+'</td></tr>'
+    +'<tr><td class="k">'+lbl('to')+'</td><td>'+valTxt(s.meta.to,s.meta.toEn)+'</td><td class="k">'+lbl('time')+'</td><td>'+esc(s.meta.time||'——')+' (UTC+8)</td></tr>'
+    +'<tr><td class="k">'+lbl('cls')+'</td><td>'+clsV+'</td><td class="k">'+lbl('doctype')+'</td><td>'+esc(L==='en'?TT.en:TT.zh)+'</td></tr>'
     +'</table>';
 }
 /* 文种标题（居中大写加粗）+ 描述性副标题（自动生成的关于……） */
 function titleHTML(){
-  var s=state,L=s.lang,T=TITLES[s.type]||TITLES.decision;
+  var s=state,L=s.lang;
+  var main=docTitleMain();
   if(L==='bi'){
-    var h='<div class="doc-type-title">'+esc(T.zh)+'</div>';
+    var h='<div class="doc-type-title">'+esc(main)+'</div>';
     if(s.doc.title)h+='<div class="doc-type-sub">'+esc(s.doc.title)+'</div>';
     if(s.doc.titleEn)h+='<div class="doc-type-sub en">'+esc(s.doc.titleEn)+'</div>';
     return h;
   }
-  var main=L==='en'?T.en:T.zh;
   var sub=L==='en'?(s.doc.titleEn||''):(s.doc.title||'');
   return '<div class="doc-type-title">'+esc(main)+'</div>'+(sub?'<div class="doc-type-sub">'+esc(sub)+'</div>':'');
 }
 /* 各文种导语（仿 FIA “The Stewards, having received a report…”） */
 function preambleHTML(){
-  var T=TITLES[state.type]||TITLES.decision,L=state.lang;
-  var txt=L==='en'?(T.preambleEn||T.preamble||''):(T.preamble||'');
-  if(!txt)return '';
+  var txt=docPreamble();
+  if(!txt||!String(txt).trim())return '';
   return '<div class="preamble">'+nl(txt)+'</div>';
+}
+/* 标签解析：优先用用户改写值，缺省回退到 LABEL_DEFS；按文档语言取值（bi 为「中文 英文」） */
+function lbl(key){
+  var L=state.lang,ov=state.labels&&state.labels[key],def=LABEL_DEFS[key];
+  var z=ov?(ov.zh||def.zh):def.zh,e=ov?(ov.en||def.en):def.en;
+  if(L==='en')return e||z;
+  if(L==='zh')return z;
+  return (z||'')+' '+(e||'');
+}
+/* 主标题（文种名称）：可被 doc.titleMain/titleMainEn 改写，缺省回退到文种默认 */
+function docTitleMain(){
+  var L=state.lang,T=TITLES[state.type]||TITLES.decision;
+  if(L==='en')return state.doc.titleMainEn||T.en;
+  if(L==='zh')return state.doc.titleMain||T.zh;
+  return (state.doc.titleMain||T.zh)+' '+(state.doc.titleMainEn||T.en);
+}
+/* 导语：可被 doc.preamble/preambleEn 改写，缺省回退到文种默认 */
+function docPreamble(){
+  var L=state.lang,T=TITLES[state.type]||TITLES.decision;
+  var z=state.doc.preamble||T.preamble||'',e=state.doc.preambleEn||T.preambleEn||'';
+  if(L==='en')return e||z;
+  if(L==='zh')return z;
+  return (z?z+' ':'')+(e||'');
+}
+/* 署名区「通知家长」行：可被 doc.notify/notifyEn 改写，缺省回退到默认 */
+function docNotify(){
+  var L=state.lang,z=state.doc.notify||NOTIFY_DEF,e=state.doc.notifyEn||NOTIFY_DEF_EN;
+  if(L==='en')return e||z;
+  if(L==='zh')return z;
+  return z+'<div class="sub">'+e+'</div>';
 }
 function valTxt(v,en){
   if(!v&&!en)return '<span class="ph">————</span>';
@@ -1069,7 +1142,7 @@ function signHTML(){
   if(s.type==='personnel'||s.type==='free'){
     var deptTxt=L==='en'?(s.org.deptEn||s.org.dept||'Volunteer Organization'):(s.org.dept||'义工组织');
     return '<div class="sig-org">'+esc(deptTxt)+'</div>'
-      +'<div class="sig-date">'+(L==='en'?'Date of Issue: ':'签发日期：')+fmtDate(s.meta.date)+'</div>';
+      +'<div class="sig-date">'+lbl('sigdate')+fmtDate(s.meta.date)+'</div>';
   }
   var offs=arr('officials').filter(function(o){return (o.name||'').trim()||(o.nameEn||'').trim()||(o.title||'').trim()||(o.titleEn||'').trim();});
   if(!offs.length)offs=[{name:'',nameEn:'',title:L==='en'?'':'学生处干事',titleEn:L==='en'?'Student Affairs Officer':''}];
@@ -1081,11 +1154,10 @@ function signHTML(){
     return '<div class="sig-block"><div class="who">'+who+'</div>'+(ttl?'<div class="t">'+esc(ttl)+'</div>':'')+'</div>';
   }).join('');
   var deptTxt=L==='en'?(s.org.deptEn||s.org.dept||'The Student Office'):(s.org.dept||'学生处');
-  var notify=L==='en'?'Notified to the student and parents: ☐ Yes — Date: __________':'已通知学生及家长：☐ 是　日期：__________';
-  return '<div class="notify-row">'+esc(notify)+'</div>'
+  return '<div class="notify-row">'+docNotify()+'</div>'
     +'<div class="sig-org">'+esc(deptTxt)+'</div>'
     +'<div class="signatures">'+blocks+'</div>'
-    +'<div class="sig-date">'+(L==='en'?'Date of Issue: ':'签发日期：')+fmtDate(s.meta.date)+'</div>';
+    +'<div class="sig-date">'+lbl('sigdate')+fmtDate(s.meta.date)+'</div>';
 }
 function renderPaper(){
   var s=state;
@@ -1247,7 +1319,8 @@ function applyChrome(){
     ['btnExportJson','Export JSON','导出 JSON','Export a JSON backup','导出为 JSON 备份'],
     ['btnImportJson','Import','导入','Restore from a JSON backup','从 JSON 备份恢复'],
     ['btnExportHtml','Export Doc','导出文档','Export a standalone printable HTML document','导出可打印的独立 HTML 文档'],
-    ['btnPrint','Print / PDF','打印 / 导出 PDF','Browser print / save as PDF','调用浏览器打印 / 另存为 PDF']];
+    ['btnExportPdf','Export PDF','导出 PDF','Export a clean PDF (no print header/footer)','导出干净 PDF（无打印页眉页脚）'],
+    ['btnPrint','Print / PDF','打印 / 导出 PDF','Browser print / save as PDF (adds header/footer)','调用浏览器打印 / 另存为 PDF（会带页眉页脚）']];
   btns.forEach(function(b){
     var el=document.getElementById(b[0]);if(!el)return;
     el.textContent=en?b[1]:b[2];
@@ -1318,6 +1391,62 @@ function exportHtml(){
     +'</head><body>'+paper.outerHTML+'</body></html>';
   download(new Blob([doc],{type:'text/html'}),'doc-'+(state.meta.no||'document')+(state.lang==='en'?'-en':state.lang==='zh'?'-zh':'-bi')+'.html');
   toast(L2('已导出独立 HTML 文档','Standalone HTML document exported'));
+}
+
+/* ================= 干净 PDF 导出（不经过浏览器打印头，无页眉页脚） =================
+   方案：html2canvas 把 A4 纸张光栅化为画布，再用 jsPDF 拼成 PDF。
+   库按需从 jsdelivr 懒加载（固定版本），仅导出那一刻需要联网；
+   若需完全离线可改为内联这两个库（约 +500KB）。 */
+var _pdfBusy=false,_pdfReady=null;
+function loadScript(src){
+  return new Promise(function(res,rej){
+    if(document.querySelector('script[src="'+src+'"]')){res();return;}
+    var s=document.createElement('script');s.src=src;s.async=true;
+    s.onload=function(){res();};
+    s.onerror=function(){rej(new Error('load fail: '+src));};
+    document.head.appendChild(s);
+  });
+}
+function ensurePdfLibs(){
+  if(_pdfReady)return _pdfReady;
+  _pdfReady=Promise.all([
+    loadScript('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js'),
+    loadScript('https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js')
+  ]).then(function(){
+    if(typeof window.html2canvas!=='function')throw new Error('html2canvas missing');
+    if(!window.jspdf||typeof window.jspdf.jsPDF!=='function')throw new Error('jsPDF missing');
+  });
+  return _pdfReady;
+}
+function exportPdf(){
+  if(_pdfBusy)return;
+  _pdfBusy=true;
+  toast(L2('正在生成 PDF…','Generating PDF…'));
+  ensurePdfLibs().then(function(){
+    // 临时还原 1:1 缩放，确保按真实 A4 尺寸捕获
+    var pt=paper.style.transform,pw=pvSizer.style.width,phh=pvSizer.style.height;
+    paper.style.transform='none';pvSizer.style.width='auto';pvSizer.style.height='auto';
+    return html2canvas(paper,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false}).then(function(canvas){
+      paper.style.transform=pt;pvSizer.style.width=pw;pvSizer.style.height=phh;
+      var jsPDF=window.jspdf.jsPDF;
+      var pdf=new jsPDF({unit:'mm',format:'a4',orientation:'portrait'});
+      var PW=210,PH=297,imgW=PW,imgH=canvas.height*imgW/canvas.width,img=canvas.toDataURL('image/jpeg',0.92);
+      if(imgH<=PH){
+        pdf.addImage(img,'JPEG',0,0,imgW,imgH);
+      }else{
+        var pages=Math.ceil(imgH/PH);
+        for(var i=0;i<pages;i++){if(i>0)pdf.addPage();pdf.addImage(img,'JPEG',0,-(i*PH),imgW,imgH);}
+      }
+      var name='doc-'+(state.meta.no||'document')+(state.lang==='en'?'-en':state.lang==='zh'?'-zh':'-bi')+'.pdf';
+      pdf.save(name);
+      toast(L2('已导出干净 PDF（无页眉页脚）','Clean PDF exported (no header/footer)'));
+      _pdfBusy=false;
+    });
+  }).catch(function(e){
+    console.error(e);
+    _pdfBusy=false;
+    toast(L2('PDF 生成失败：请检查网络连接（需加载导出库），或改用「打印 / 导出 PDF」','PDF failed: check network (needs export libs) or use Print/PDF'));
+  });
 }
 
 /* ================= 机器翻译（免密钥公开接口） =================
@@ -1566,7 +1695,15 @@ function normalizeState(s){
   if(!Array.isArray(s._mt))s._mt=[];
   if(!Array.isArray(s.personnel))s.personnel=[{name:'',nameEn:'',action:'appoint',position:'',positionEn:'',term:'',termEn:''}];
   if(typeof s.autoMT!=='boolean')s.autoMT=false;
-  if(!s.doc)s.doc={};if(typeof s.doc.freeHtml!=='string')s.doc.freeHtml='';if(typeof s.doc.bodyHtml!=='string')s.doc.bodyHtml='';if(typeof s.doc.bodyManual!=='boolean')s.doc.bodyManual=false;
+  if(!s.doc)s.doc={};  if(typeof s.doc.freeHtml!=='string')s.doc.freeHtml='';if(typeof s.doc.bodyHtml!=='string')s.doc.bodyHtml='';if(typeof s.doc.bodyManual!=='boolean')s.doc.bodyManual=false;
+  if(typeof s.doc.titleMain!=='string')s.doc.titleMain='';if(typeof s.doc.titleMainEn!=='string')s.doc.titleMainEn='';
+  if(typeof s.doc.preamble!=='string')s.doc.preamble='';if(typeof s.doc.preambleEn!=='string')s.doc.preambleEn='';
+  if(typeof s.doc.notify!=='string')s.doc.notify='';if(typeof s.doc.notifyEn!=='string')s.doc.notifyEn='';
+  if(!s.labels)s.labels={};
+  Object.keys(LABEL_DEFS).forEach(function(k){
+    if(!s.labels[k])s.labels[k]={zh:LABEL_DEFS[k].zh,en:LABEL_DEFS[k].en};
+    else{if(typeof s.labels[k].zh!=='string')s.labels[k].zh=LABEL_DEFS[k].zh;if(typeof s.labels[k].en!=='string')s.labels[k].en=LABEL_DEFS[k].en;}
+  });
   return s;
 }
 
@@ -1586,6 +1723,7 @@ var state=example();
   $('#btnExportJson').addEventListener('click',exportJson);
   $('#btnImportJson').addEventListener('click',function(){$('#fileInput').click();});
   $('#btnExportHtml').addEventListener('click',exportHtml);
+  $('#btnExportPdf').addEventListener('click',exportPdf);
   $('#btnPrint').addEventListener('click',function(){window.print();});
   $('#btnTranslate').addEventListener('click',translateAllAndDownload);
   $('#fileInput').addEventListener('change',function(e){
